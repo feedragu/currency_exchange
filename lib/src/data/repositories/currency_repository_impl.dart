@@ -35,31 +35,33 @@ class CurrencyRepositoryImpl implements CurrencyRepository {
   }
 
   @override
-  Future<CurrencyRates> changeCurrency(
+  Future<CurrencyRates> calculateCurrency(
     String newBaseCurrency,
+    double amount,
   ) async {
     final rates = await localDataSource.getLastCurrencyRates();
-    final convertedRates = _convertCurrencyRates(rates, newBaseCurrency);
+    final convertedRates =
+        _convertCurrencyRates(rates, newBaseCurrency, amount);
     return convertedRates.toDomain();
   }
 
   CurrencyRatesModel _convertCurrencyRates(
     CurrencyRatesModel rates,
     String newBaseCurrency,
+    double amount,
   ) {
-    // Get the conversion rate for the new base currency relative to USD
+    // Get the conversion rate for the new base currency relative to the original base
     final newBaseRate = rates.rates[newBaseCurrency] ?? 1.0;
 
-    // Create new rates map with updated values
     final Map<String, double> convertedRates = {};
 
     rates.rates.forEach((currency, rate) {
-      // Convert each rate to be relative to the new base currency
-      convertedRates[currency] = rate / newBaseRate;
+      // Convert to new base currency, then multiply by amount
+      convertedRates[currency] = (rate / newBaseRate) * amount;
     });
 
-    // Set the new base currency rate to 1.0
-    convertedRates[newBaseCurrency] = 1.0;
+    // The new base currency itself should equal the amount
+    convertedRates[newBaseCurrency] = amount;
 
     return CurrencyRatesModel(
       baseCurrency: newBaseCurrency,

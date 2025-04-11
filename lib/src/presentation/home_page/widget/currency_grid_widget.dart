@@ -12,27 +12,42 @@ class CurrencyListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: rates.length,
+    final filteredRates =
+        rates.entries.where((entry) => entry.key != baseCurrency).toList();
+
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+        childAspectRatio: 1,
+      ),
+      padding: const EdgeInsets.all(16),
+      itemCount: filteredRates.length,
       itemBuilder: (context, index) {
-        final currency = rates.keys.elementAt(index);
-        final rate = rates[currency];
+        final currency = filteredRates[index].key;
+        final amountValue = filteredRates[index].value;
 
-        // Skip showing the base currency against itself (which is always 1.0)
-        if (currency == baseCurrency) {
-          return Container(); // Or you could show it as a special item
-        }
-
-        return ListTile(
-          leading: CircleAvatar(
-            child: Text(currency.substring(0, 1)),
-          ),
-          title: Text(currency),
-          subtitle:
-              Text('1 $baseCurrency = ${rate?.toStringAsFixed(4)} $currency'),
-          trailing: Text(
-            rate?.toStringAsFixed(4) ?? '-',
-            style: const TextStyle(fontWeight: FontWeight.bold),
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: 35,
+                child: Text(
+                  currency.length >= 3
+                      ? currency.substring(0, 3)
+                      : currency.substring(0, 1),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                amountValue.toStringAsFixed(2),
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 12),
+              ),
+            ],
           ),
         );
       },

@@ -1,6 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:currency_exchange/src/core/design_system/app_dropdown.dart';
 import 'package:currency_exchange/src/presentation/home_page/bloc/currency_bloc.dart';
+import 'package:currency_exchange/src/presentation/home_page/widget/currency_dropdown.dart';
 import 'package:currency_exchange/src/presentation/home_page/widget/currency_grid_widget.dart';
 import 'package:currency_exchange/src/presentation/home_page/widget/home_body.dart';
 import 'package:flutter/material.dart';
@@ -76,7 +76,7 @@ void main() {
     await tester.pumpWidget(createWidgetUnderTest());
     await tester.pump();
 
-    expect(find.byType(AppDropdown), findsOneWidget);
+    expect(find.byType(CurrencyDropdown), findsOneWidget);
     expect(find.byType(CurrencyListWidget), findsOneWidget);
   });
 }

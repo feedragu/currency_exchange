@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
-class AppDropdown<T> extends StatefulWidget {
-  /// the child widget for the button, this will be ignored if text is supplied
-  final Widget child;
-
+class EditTextDropdown<T> extends StatefulWidget {
   /// onChange is called when the selected option is changed.;
   /// It will pass back the value and the index of the option.
   final void Function(int) onChange;
@@ -17,14 +14,20 @@ class AppDropdown<T> extends StatefulWidget {
   final bool hideIcon;
   final bool isEnabled;
   final bool isError;
+  final String labelText;
+  final void Function(String text) filterItems;
+
+  final TextEditingController controller;
 
   /// if true the dropdown icon will as a leading icon, default to false
   final bool leadingIcon;
 
-  const AppDropdown({
-    required this.child,
+  const EditTextDropdown({
     required this.items,
     required this.onChange,
+    required this.controller,
+    required this.filterItems,
+    required this.labelText,
     this.onClick,
     super.key,
     this.hideIcon = false,
@@ -35,10 +38,10 @@ class AppDropdown<T> extends StatefulWidget {
   });
 
   @override
-  State<AppDropdown> createState() => _AppDropdownState();
+  State<EditTextDropdown> createState() => _EditTextDropdownState();
 }
 
-class _AppDropdownState<T> extends State<AppDropdown<T>>
+class _EditTextDropdownState<T> extends State<EditTextDropdown<T>>
     with TickerProviderStateMixin {
   final LayerLink _layerLink = LayerLink();
   final ScrollController _scrollController =
@@ -80,6 +83,7 @@ class _AppDropdownState<T> extends State<AppDropdown<T>>
       link: _layerLink,
       child: Container(
         decoration: BoxDecoration(
+          color: Colors.white,
           border: Border.all(
             color: widget.isError == true ? Colors.red : Colors.grey,
             width: 1,
@@ -90,66 +94,83 @@ class _AppDropdownState<T> extends State<AppDropdown<T>>
                   topLeft: Radius.circular(8),
                   topRight: Radius.circular(8),
                 ),
+          boxShadow: [],
         ),
-        child: InkWell(
-          borderRadius: !_isOpen
-              ? const BorderRadius.all(Radius.circular(8))
-              : const BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  topRight: Radius.circular(8),
-                ),
-          onTap: widget.items.isEmpty || widget.isEnabled == false
-              ? null
-              : () {
-                  _closeKeyboard();
-                  _toggleDropdown.call();
-                  widget.onClick?.call();
-                },
-          child: Stack(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(child: widget.child),
-                        if (widget.items.isNotEmpty &&
-                            widget.isEnabled &&
-                            !widget.hideIcon &&
-                            widget.icon != null)
-                          RotationTransition(
-                            turns: _rotateAnimation,
-                            child: Icon(widget.icon!),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              if (_isOpen) ...[
-                Positioned(
-                  bottom: 2,
-                  left: 0,
-                  right: 0,
-                  child: Column(
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: !_isOpen
+                ? const BorderRadius.all(Radius.circular(8))
+                : const BorderRadius.only(
+                    topLeft: Radius.circular(8),
+                    topRight: Radius.circular(8),
+                  ),
+            onTap: widget.items.isEmpty
+                ? null
+                : () {
+                    _closeKeyboard();
+                    _toggleDropdown.call();
+                    widget.onClick?.call();
+                  },
+            child: Stack(
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                  child: Row(
                     children: [
-                      Container(
-                        height: 1,
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 16,
+                      Expanded(
+                        child: TextFormField(
+                          onTap: () {
+                            if (!_isOpen) {
+                              _toggleDropdown();
+                            }
+                          },
+                          onChanged: (text) {
+                            widget.filterItems(text);
+                            if (!_isOpen) {
+                              _toggleDropdown();
+                            }
+                            Future.delayed(const Duration(milliseconds: 50))
+                                .then((value) => _recreateDropdown.call());
+                          },
+                          onFieldSubmitted: (_) {
+                            _toggleDropdown();
+                          },
+                          controller: widget.controller,
+                          decoration: InputDecoration(
+                            labelText: widget.labelText,
+                            border: InputBorder.none,
+                          ),
                         ),
-                        color: Colors.grey,
+                      ),
+                      RotationTransition(
+                        turns: _rotateAnimation,
+                        child: Icon(
+                          widget.icon!,
+                        ),
                       ),
                     ],
                   ),
                 ),
+                if (_isOpen) ...[
+                  Positioned(
+                    bottom: 2,
+                    left: 0,
+                    right: 0,
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 1,
+                          margin: const EdgeInsets.symmetric(horizontal: 16),
+                          color: const Color(0xFF333333),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -197,15 +218,23 @@ class _AppDropdownState<T> extends State<AppDropdown<T>>
     if (_isOpen || close) {
       await _animationController.reverse();
       _overlayEntry.remove();
-      setState(() {
-        _isOpen = false;
-      });
+      _closeKeyboard();
+      setState(() => _isOpen = false);
     } else {
       _overlayEntry = _createOverlayEntry();
       Overlay.of(context).insert(_overlayEntry);
       setState(() => _isOpen = true);
       _animationController.forward();
     }
+  }
+
+  void _recreateDropdown() {
+    if (_isOpen) {
+      _overlayEntry.remove();
+    }
+    _overlayEntry = _createOverlayEntry();
+    Overlay.of(context).insert(_overlayEntry);
+    setState(() => {});
   }
 }
 
@@ -324,6 +353,7 @@ class OverlayDropdown<T> extends StatelessWidget {
               showWhenUnlinked: false,
               child: Container(
                 decoration: const BoxDecoration(
+                  color: Colors.white,
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(8),
                     bottomRight: Radius.circular(8),
@@ -371,7 +401,7 @@ class OverlayDropdown<T> extends StatelessWidget {
                                 child: InkWell(
                                   onTap: () => onTap(item.key),
                                   child: Ink(
-                                    color: Colors.grey,
+                                    color: Colors.white,
                                     child: item.value,
                                   ),
                                 ),

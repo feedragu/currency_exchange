@@ -12,15 +12,17 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white, // or any fixed color
+        elevation: 0, // prevents shadow on scroll
         title: const Text('Currency Exchange'),
-        elevation: 0,
         scrolledUnderElevation: 0.0,
       ),
       body: BlocProvider<CurrencyBloc>(
         create: (context) => CurrencyBloc(
           getCurrencyRates: context.read<FetchCurrencyRatesUseCase>(),
           changeCurrency: context.read<ChangeCurrencyUseCase>(),
-          currencyController: TextEditingController(),
+          currencyController: TextEditingController(text: 'USD'),
+          amountController: TextEditingController(text: '1'),
         ),
         child: const HomeBody(),
       ),

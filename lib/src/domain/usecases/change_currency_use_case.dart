@@ -12,14 +12,21 @@ class ChangeCurrencyUseCase
 
   @override
   Future<CurrencyRates> run({required ChangeCurrencyParams request}) {
-    return repository.changeCurrency(request.newBaseCurrency);
+    return repository.calculateCurrency(
+      request.newBaseCurrency,
+      request.amount,
+    );
   }
 }
 
 class ChangeCurrencyParams extends Equatable {
   final String newBaseCurrency;
+  final double amount;
 
-  const ChangeCurrencyParams({required this.newBaseCurrency});
+  const ChangeCurrencyParams({
+    required this.newBaseCurrency,
+    required this.amount,
+  });
 
   @override
   List<Object> get props => [newBaseCurrency];

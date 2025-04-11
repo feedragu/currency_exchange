@@ -1,8 +1,10 @@
 import 'package:currency_exchange/src/core/design_system/app_circular_progress_indicator.dart';
-import 'package:currency_exchange/src/core/design_system/currency_dropdown.dart';
+import 'package:currency_exchange/src/core/design_system/app_text_field.dart';
 import 'package:currency_exchange/src/presentation/home_page/bloc/currency_bloc.dart';
+import 'package:currency_exchange/src/presentation/home_page/widget/currency_dropdown.dart';
 import 'package:currency_exchange/src/presentation/home_page/widget/currency_grid_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomeBody extends StatelessWidget {
@@ -29,13 +31,35 @@ class HomeBody extends StatelessWidget {
               Positioned.fill(
                 child: RefreshIndicator(
                   onRefresh: () async {
-                    context.read<CurrencyBloc>().add(GetCurrencyRatesEvent());
+                    context.read<CurrencyBloc>().add(
+                          GetCurrencyRatesEvent(),
+                        );
                   },
                   child: Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: CurrencyDropdown<String>(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 8),
+                        child: AppTextField(
+                          labelText: 'Amount',
+                          controller:
+                              context.read<CurrencyBloc>().amountController,
+                          textInputFormatter: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          onTextChanged: (newAmount) => context
+                              .read<CurrencyBloc>()
+                              .add(OnAmountChangedEvent(newAmount)),
+                          textInputAction: TextInputAction.done,
+                          keyboardType: TextInputType.number,
+                          onSubmitted: (_) => FocusScope.of(context).unfocus(),
+                          verticalPadding: 4,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 8),
+                        child: CurrencyDropdown(
                           values: state.rates.keys.toList(),
                           selectedValue: state.baseCurrency,
                           controller:
@@ -45,6 +69,7 @@ class HomeBody extends StatelessWidget {
                                   ChangeCurrencyEvent(newCurrency),
                                 );
                           },
+                          onFilteredText: (String filteredText) {},
                         ),
                       ),
                       Expanded(

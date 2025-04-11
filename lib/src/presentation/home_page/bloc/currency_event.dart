@@ -9,6 +9,15 @@ class GetCurrencyRatesEvent extends CurrencyEvent {
   List<Object> get props => [];
 }
 
+class OnAmountChangedEvent extends CurrencyEvent {
+  final String newAmount;
+
+  const OnAmountChangedEvent(this.newAmount);
+
+  @override
+  List<Object> get props => [];
+}
+
 class ChangeCurrencyEvent extends CurrencyEvent {
   final String newBaseCurrency;
 

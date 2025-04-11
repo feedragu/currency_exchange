@@ -1,0 +1,57 @@
+name: currency_exchange
+description: A Flutter app that displays exchange rates relative to a currency.
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # Architecture & State Management
+  flutter_bloc: ^9.1.0
+  bloc: ^9.0.0
+  provider: ^6.1.4
+  equatable: ^2.0.7
+
+  # Network
+  dio: ^5.8.0+1
+  connectivity_plus: ^6.1.3
+  internet_connection_checker: ^3.0.1
+
+  # Storage
+  drift: ^2.26.0
+  sqlite3_flutter_libs: ^0.5.32
+  path_provider: ^2.1.5
+  path: ^1.9.1
+
+  # Utils
+  intl: ^0.20.2
+  logger: ^2.5.0
+  flutter_svg: ^2.0.17
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  bloc_test: ^10.0.0
+  mocktail: ^1.0.4
+  build_runner: ^2.4.15
+  drift_dev: ^2.26.0
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - lib/resources/images/
+
+#  fonts:
+#    - family: Roboto
+#      fonts:
+#        - asset: assets/fonts/Roboto-Regular.ttf
+#        - asset: assets/fonts/Roboto-Medium.ttf
+#          weight: 500
+#        - asset: assets/fonts/Roboto-Bold.ttf
+#          weight: 700

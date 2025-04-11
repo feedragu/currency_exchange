@@ -1,0 +1,87 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  plugins:
+    - dart_code_linter
+  exclude:
+    - 'core/app_localizations/lib/l10n/gen/*'
+    - '**/*.g.dart'
+    - '**/*.mocks.dart'
+    - '**/**pigeon'
+  strong-mode:
+    implicit-casts: false
+    implicit-dynamic: false
+
+  errors:
+    unused_local_variable: error
+    unused_field: error
+    unused_element: error
+    dead_code: error
+    invalid_annotation_target: ignore
+
+dart_code_linter:
+  metrics:
+    method-lines-of-code: 50
+    cyclomatic-complexity: 13
+    maximum-nesting-level: 4
+    number-of-methods: 16
+    source-lines-of-code: 800
+  
+  metrics-exclude:
+    - lib/generated/**
+    - pigeon/**
+  rules:
+    # Style rules
+    - no-boolean-literal-compare
+    - no-equal-then-else
+    - avoid-redundant-async
+    - avoid-duplicate-exports
+    - avoid-global-state
+
+    # Best practices
+    - binary-expression-operand-order
+    - double-literal-format
+    - prefer-match-file-name
+
+linter:
+  rules:
+    # Style rules
+    camel_case_types: true
+    library_names: true
+    file_names: true
+    camel_case_extensions: true
+    prefer_single_quotes: true
+
+    # Usage rules
+    avoid_unused_constructor_parameters: true
+    prefer_final_fields: true
+    prefer_final_locals: true
+    unnecessary_const: true
+    unnecessary_new: true
+    unnecessary_this: true
+
+    # Named parameters and trailing commas
+    avoid_positional_boolean_parameters: true
+    require_trailing_commas: true
+
+    # Design rules
+    use_key_in_widget_constructors: true
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    avoid_print: true
+    avoid_relative_lib_imports: true
+    avoid_slow_async_io: true
+    avoid_unnecessary_containers: true
+
+    # Collections
+    prefer_collection_literals: true
+    prefer_iterable_whereType: true
+
+    # Naming
+    constant_identifier_names: true
+    non_constant_identifier_names: true
+
+    # Other best practices
+    avoid_void_async: true
+    await_only_futures: true
+    directives_ordering: true

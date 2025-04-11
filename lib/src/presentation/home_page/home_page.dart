@@ -20,6 +20,7 @@ class HomePage extends StatelessWidget {
         create: (context) => CurrencyBloc(
           getCurrencyRates: context.read<FetchCurrencyRatesUseCase>(),
           changeCurrency: context.read<ChangeCurrencyUseCase>(),
+          currencyController: TextEditingController(),
         ),
         child: const HomeBody(),
       ),

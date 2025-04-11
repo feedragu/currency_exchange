@@ -1,5 +1,6 @@
+import 'package:currency_exchange/src/core/design_system/app_circular_progress_indicator.dart';
+import 'package:currency_exchange/src/core/design_system/currency_dropdown.dart';
 import 'package:currency_exchange/src/presentation/home_page/bloc/currency_bloc.dart';
-import 'package:currency_exchange/src/presentation/home_page/widget/currency_dropdown.dart';
 import 'package:currency_exchange/src/presentation/home_page/widget/currency_grid_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,32 +24,47 @@ class HomeBody extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         } else if (state is CurrencyLoaded) {
-          return RefreshIndicator(
-            onRefresh: () async {
-              context.read<CurrencyBloc>().add(GetCurrencyRatesEvent());
-            },
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: CurrencyDropdown(
-                    currencies: state.rates.keys.toList(),
-                    selectedCurrency: state.baseCurrency,
-                    onChanged: (newCurrency) {
-                      context.read<CurrencyBloc>().add(
-                            ChangeCurrencyEvent(newCurrency),
-                          );
-                    },
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    context.read<CurrencyBloc>().add(GetCurrencyRatesEvent());
+                  },
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: CurrencyDropdown<String>(
+                          values: state.rates.keys.toList(),
+                          selectedValue: state.baseCurrency,
+                          controller:
+                              context.read<CurrencyBloc>().currencyController,
+                          onSelectedChanged: (newCurrency) {
+                            context.read<CurrencyBloc>().add(
+                                  ChangeCurrencyEvent(newCurrency),
+                                );
+                          },
+                        ),
+                      ),
+                      Expanded(
+                        child: CurrencyListWidget(
+                          baseCurrency: state.baseCurrency,
+                          rates: state.rates,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Expanded(
-                  child: CurrencyListWidget(
-                    baseCurrency: state.baseCurrency,
-                    rates: state.rates,
+              ),
+              if (state.isLoadingChangeCurrency)
+                AppCircularProgressIndicator(
+                  spinnerColor: Theme.of(context).primaryColor,
+                  backgroundColor: Colors.grey.withValues(
+                    alpha: 0.3,
                   ),
                 ),
-              ],
-            ),
+            ],
           );
         } else if (state is CurrencyError) {
           return Center(

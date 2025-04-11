@@ -19,15 +19,30 @@ class CurrencyLoading extends CurrencyState {
 
 class CurrencyLoaded extends CurrencyState {
   final String baseCurrency;
+  final bool isLoadingChangeCurrency;
   final Map<String, double> rates;
 
   const CurrencyLoaded({
     required this.baseCurrency,
     required this.rates,
+    this.isLoadingChangeCurrency = false,
   });
 
   @override
-  List<Object> get props => [baseCurrency, rates];
+  List<Object> get props => [baseCurrency, rates, isLoadingChangeCurrency];
+
+  CurrencyLoaded copyWith({
+    String? baseCurrency,
+    bool? isLoadingChangeCurrency,
+    Map<String, double>? rates,
+  }) {
+    return CurrencyLoaded(
+      baseCurrency: baseCurrency ?? this.baseCurrency,
+      isLoadingChangeCurrency:
+          isLoadingChangeCurrency ?? this.isLoadingChangeCurrency,
+      rates: rates ?? this.rates,
+    );
+  }
 }
 
 class CurrencyError extends CurrencyState {

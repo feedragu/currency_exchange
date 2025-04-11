@@ -1,4 +1,7 @@
-class ServerException implements Exception {
+import 'package:currency_exchange/src/core/exception/app_exception.dart';
+
+class ServerException implements AppException {
+  @override
   final String message;
   final int? statusCode;
 
@@ -7,4 +10,3 @@ class ServerException implements Exception {
   @override
   String toString() => 'ServerException: $message (Status code: $statusCode)';
 }
-

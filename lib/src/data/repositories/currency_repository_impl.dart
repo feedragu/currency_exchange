@@ -1,8 +1,10 @@
+import 'package:currency_exchange/src/core/exception/exception.dart';
 import 'package:currency_exchange/src/data/local/currency_exchange_local_data_source.dart';
 import 'package:currency_exchange/src/data/remote/currency_remote_data_source.dart';
 import 'package:currency_exchange/src/domain/model/currency_rates.dart';
 import 'package:currency_exchange/src/domain/model/currency_rates_model.dart';
 import 'package:currency_exchange/src/domain/repositories/currency_repository.dart';
+import 'package:dio/dio.dart';
 
 class CurrencyRepositoryImpl implements CurrencyRepository {
   final CurrencyRemoteDataSource remoteDataSource;
@@ -15,9 +17,21 @@ class CurrencyRepositoryImpl implements CurrencyRepository {
 
   @override
   Future<CurrencyRates> getCurrencyRates() async {
-    final remoteRates = await remoteDataSource.getLatestUSDRates();
-    localDataSource.cacheCurrencyRates(remoteRates);
-    return remoteRates.toDomain();
+    try {
+      final remoteRates = await remoteDataSource.getLatestUSDRates();
+      localDataSource.cacheCurrencyRates(remoteRates);
+      return remoteRates.toDomain();
+    } on DioException catch (e) {
+      // Transform specific DioErrors into domain-specific exceptions
+      if (e.response?.statusCode == 404) {
+        throw ServerException(message: 'User not found');
+      } else if (e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError) {
+        throw NetworkException(message: 'Connection timeout');
+      } else {
+        throw ServerException(message: 'Server error: ${e.message}');
+      }
+    }
   }
 
   @override

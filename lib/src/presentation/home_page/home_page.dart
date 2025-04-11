@@ -14,6 +14,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Currency Exchange'),
         elevation: 0,
+        scrolledUnderElevation: 0.0,
       ),
       body: BlocProvider<CurrencyBloc>(
         create: (context) => CurrencyBloc(

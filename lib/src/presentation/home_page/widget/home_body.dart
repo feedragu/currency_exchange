@@ -12,10 +12,16 @@ class HomeBody extends StatelessWidget {
     return BlocBuilder<CurrencyBloc, CurrencyState>(
       builder: (context, state) {
         if (state is CurrencyInitial) {
-          context.read<CurrencyBloc>().add(GetCurrencyRatesEvent());
-          return const Center(child: CircularProgressIndicator());
+          context.read<CurrencyBloc>().add(
+                GetCurrencyRatesEvent(),
+              );
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
         } else if (state is CurrencyLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
         } else if (state is CurrencyLoaded) {
           return RefreshIndicator(
             onRefresh: () async {
@@ -51,12 +57,16 @@ class HomeBody extends StatelessWidget {
               children: [
                 Text(
                   'Error: ${state.message}',
-                  style: const TextStyle(color: Colors.red),
+                  style: const TextStyle(
+                    color: Colors.red,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
-                    context.read<CurrencyBloc>().add(GetCurrencyRatesEvent());
+                    context.read<CurrencyBloc>().add(
+                          GetCurrencyRatesEvent(),
+                        );
                   },
                   child: const Text('Retry'),
                 ),

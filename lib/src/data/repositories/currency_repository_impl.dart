@@ -1,6 +1,9 @@
 import 'package:currency_exchange/src/core/exception/exception.dart';
 import 'package:currency_exchange/src/data/local/currency_exchange_local_data_source.dart';
 import 'package:currency_exchange/src/data/remote/currency_remote_data_source.dart';
+import 'package:currency_exchange/src/data/repositories/extension/exchange_codes_ext.dart';
+import 'package:currency_exchange/src/data/repositories/extension/exchange_currency_ext.dart';
+import 'package:currency_exchange/src/domain/model/currency_model.dart';
 import 'package:currency_exchange/src/domain/model/currency_rates.dart';
 import 'package:currency_exchange/src/domain/model/currency_rates_model.dart';
 import 'package:currency_exchange/src/domain/repositories/currency_repository.dart';
@@ -19,10 +22,32 @@ class CurrencyRepositoryImpl implements CurrencyRepository {
   Future<CurrencyRates> getCurrencyRates() async {
     try {
       final remoteRates = await remoteDataSource.getLatestUSDRates();
-      localDataSource.cacheCurrencyRates(remoteRates);
-      return remoteRates.toDomain();
+      final currencyRates = remoteRates.toCurrencyRatesDomain();
+      if (currencyRates != null) {
+        localDataSource.cacheCurrencyRates(currencyRates);
+        return currencyRates;
+      } else {
+        throw ServerException(message: 'Server error');
+      }
     } on DioException catch (e) {
-      // Transform specific DioErrors into domain-specific exceptions
+      if (e.response?.statusCode == 404) {
+        throw ServerException(message: 'User not found');
+      } else if (e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError) {
+        throw NetworkException(message: 'Connection timeout');
+      } else {
+        throw ServerException(message: 'Server error: ${e.message}');
+      }
+    }
+  }
+
+  @override
+  Future<List<CurrencyCode>> getExchangeCodes() async {
+    try {
+      final remoteRates = await remoteDataSource.getSupportedCodes();
+      final currencyRates = remoteRates.toCurrencyCodeDomain();
+      return currencyRates;
+    } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
         throw ServerException(message: 'User not found');
       } else if (e.type == DioExceptionType.receiveTimeout ||

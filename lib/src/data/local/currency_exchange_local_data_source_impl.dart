@@ -1,5 +1,6 @@
 import 'package:currency_exchange/src/data/local/currency_exchange_local_data_source.dart';
 import 'package:currency_exchange/src/data/local/dao/currency_dao.dart';
+import 'package:currency_exchange/src/domain/model/currency_rates.dart';
 import 'package:currency_exchange/src/domain/model/currency_rates_model.dart';
 
 class CurrencyLocalDataSourceImpl implements CurrencyLocalDataSource {
@@ -40,9 +41,9 @@ class CurrencyLocalDataSourceImpl implements CurrencyLocalDataSource {
   }
 
   @override
-  Future<void> cacheCurrencyRates(CurrencyRatesModel currencyRates) async {
+  Future<void> cacheCurrencyRates(CurrencyRates currencyRates) async {
     try {
-      await currencyDao.saveCurrencyRates(currencyRates.toDomain());
+      await currencyDao.saveCurrencyRates(currencyRates);
     } catch (e) {
       throw Exception('Failed to cache currency rates: ${e.toString()}');
     }

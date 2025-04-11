@@ -26,3 +26,12 @@ class ChangeCurrencyEvent extends CurrencyEvent {
   @override
   List<Object> get props => [newBaseCurrency];
 }
+
+class FilteredItemsEvent extends CurrencyEvent {
+  final String filteredText;
+
+  const FilteredItemsEvent(this.filteredText);
+
+  @override
+  List<Object> get props => [filteredText];
+}

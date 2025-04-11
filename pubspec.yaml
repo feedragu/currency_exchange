@@ -31,6 +31,7 @@ dependencies:
   intl: ^0.20.2
   logger: ^2.5.0
   flutter_svg: ^2.0.17
+  json_annotation: ^4.9.0
 
 dev_dependencies:
   flutter_test:
@@ -38,6 +39,7 @@ dev_dependencies:
   bloc_test: ^10.0.0
   mocktail: ^1.0.4
   build_runner: ^2.4.15
+  json_serializable: ^6.9.4
   drift_dev: ^2.26.0
   flutter_lints: ^5.0.0
 

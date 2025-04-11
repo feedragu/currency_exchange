@@ -69,7 +69,10 @@ class HomeBody extends StatelessWidget {
                                   ChangeCurrencyEvent(newCurrency),
                                 );
                           },
-                          onFilteredText: (String filteredText) {},
+                          onFilteredText: (String filteredText) =>
+                              context.read<CurrencyBloc>().add(
+                                    FilteredItemsEvent(filteredText),
+                                  ),
                         ),
                       ),
                       Expanded(

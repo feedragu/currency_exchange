@@ -23,12 +23,13 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
     required this.currencyController,
     required this.amountController,
   }) : super(CurrencyInitial()) {
-    on<GetCurrencyRatesEvent>(_onGetCurrencyRates);
-    on<ChangeCurrencyEvent>(_onChangeCurrency);
+    on<GetCurrencyRatesEvent>(_onGetCurrencyRatesEvent);
+    on<ChangeCurrencyEvent>(_onChangeCurrencyEvent);
     on<OnAmountChangedEvent>(_onAmountChangedEvent);
+    on<FilteredItemsEvent>(_onFilteredItemsEvent);
   }
 
-  Future<void> _onGetCurrencyRates(
+  Future<void> _onGetCurrencyRatesEvent(
     GetCurrencyRatesEvent event,
     Emitter<CurrencyState> emit,
   ) async {
@@ -37,11 +38,14 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
     final result = await getCurrencyRates.run();
 
     emit(
-      CurrencyLoaded(baseCurrency: result.baseCurrency, rates: result.rates),
+      CurrencyLoaded(
+        baseCurrency: result.baseCurrency,
+        rates: result.rates,
+      ),
     );
   }
 
-  Future<void> _onChangeCurrency(
+  Future<void> _onChangeCurrencyEvent(
     ChangeCurrencyEvent event,
     Emitter<CurrencyState> emit,
   ) async {
@@ -80,7 +84,7 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
       final currentState = state;
       switch (currentState) {
         case CurrencyLoaded():
-          if(event.newAmount.isNotEmpty) {
+          if (event.newAmount.isNotEmpty) {
             final result = await changeCurrency.run(
               request: ChangeCurrencyParams(
                 newBaseCurrency: currentState.baseCurrency,
@@ -104,4 +108,7 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
       emit(CurrencyError(message: e.toString()));
     }
   }
+
+  FutureOr<void> _onFilteredItemsEvent(
+      FilteredItemsEvent event, Emitter<CurrencyState> emit) {}
 }

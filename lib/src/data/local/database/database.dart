@@ -15,18 +15,36 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
-}
-
-class CurrencyRatesTable extends Table {
-  TextColumn get baseCurrency => text()();
-
-  TextColumn get ratesJson => text()();
-
-  DateTimeColumn get lastUpdated => dateTime()();
+  int get schemaVersion => 2;
 
   @override
-  Set<Column> get primaryKey => {baseCurrency};
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (Migrator m) {
+          return m.createAll();
+        },
+        onUpgrade: (Migrator m, int from, int to) async {
+          if (from < 2) {
+            await m.drop(currencyRatesTable);
+            await m.create(currencyRatesTable);
+          }
+        },
+        // Useful for debugging
+        beforeOpen: (details) async {
+          await customStatement('PRAGMA foreign_keys = ON');
+        },
+      );
+}
+
+@DataClassName('Currency')
+class CurrencyRatesTable extends Table {
+  TextColumn get code => text().withLength(min: 3, max: 3)();
+
+  TextColumn get description => text().nullable()();
+
+  RealColumn get rate => real()();
+
+  @override
+  Set<Column> get primaryKey => {code};
 }
 
 LazyDatabase _openConnection() {

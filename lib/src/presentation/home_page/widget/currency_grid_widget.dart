@@ -1,20 +1,16 @@
+import 'package:currency_exchange/src/presentation/home_page/model/ui_converted_amount.dart';
 import 'package:flutter/material.dart';
 
 class CurrencyListWidget extends StatelessWidget {
   const CurrencyListWidget({
     super.key,
-    required this.baseCurrency,
-    required this.rates,
+    required this.convertedAmounts,
   });
 
-  final String baseCurrency;
-  final Map<String, double> rates;
+  final List<UiConvertedAmount> convertedAmounts;
 
   @override
   Widget build(BuildContext context) {
-    final filteredRates =
-        rates.entries.where((entry) => entry.key != baseCurrency).toList();
-
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
@@ -23,10 +19,10 @@ class CurrencyListWidget extends StatelessWidget {
         childAspectRatio: 1,
       ),
       padding: const EdgeInsets.all(16),
-      itemCount: filteredRates.length,
+      itemCount: convertedAmounts.length,
       itemBuilder: (context, index) {
-        final currency = filteredRates[index].key;
-        final amountValue = filteredRates[index].value;
+        final currency = convertedAmounts[index].code;
+        final amountValue = convertedAmounts[index].amount;
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),

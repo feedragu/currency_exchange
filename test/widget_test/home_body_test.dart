@@ -1,5 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:currency_exchange/src/presentation/home_page/bloc/currency_bloc.dart';
+import 'package:currency_exchange/src/presentation/home_page/model/ui_converted_amount.dart';
+import 'package:currency_exchange/src/presentation/home_page/model/ui_currency_model.dart';
 import 'package:currency_exchange/src/presentation/home_page/widget/currency_dropdown.dart';
 import 'package:currency_exchange/src/presentation/home_page/widget/currency_grid_widget.dart';
 import 'package:currency_exchange/src/presentation/home_page/widget/home_body.dart';
@@ -60,16 +62,33 @@ void main() {
 
   testWidgets('shows dropdown and list when state is CurrencyLoaded',
       (tester) async {
-    const baseCurrency = 'USD';
-    const rates = {'EUR': 0.85, 'USD': 1.0, 'JPY': 110.0};
+    const baseCurrency =
+        UiCurrencyModel(code: 'USD', description: 'description', rate: 1.0);
+    const rates = [
+      UiCurrencyModel(code: 'USD', description: 'description', rate: 1.0),
+      UiCurrencyModel(code: 'EUR', description: 'description', rate: 0.85),
+    ];
+
+    const convertedAmount = [
+      UiConvertedAmount(code: 'USD', amount: 1.0),
+      UiConvertedAmount(code: 'EUR', amount: 0.85),
+    ];
 
     when(() => mockCurrencyBloc.state).thenReturn(
-      const CurrencyLoaded(baseCurrency: baseCurrency, rates: rates),
+      const CurrencyLoaded(
+        baseCurrency: baseCurrency,
+        convertedAmounts: convertedAmount,
+        currencyModels: rates,
+      ),
     );
     whenListen(
       mockCurrencyBloc,
       Stream.value(
-        const CurrencyLoaded(baseCurrency: baseCurrency, rates: rates),
+        const CurrencyLoaded(
+          baseCurrency: baseCurrency,
+          convertedAmounts: convertedAmount,
+          currencyModels: rates,
+        ),
       ),
     );
 

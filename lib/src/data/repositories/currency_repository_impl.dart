@@ -1,11 +1,13 @@
+import 'package:collection/collection.dart';
 import 'package:currency_exchange/src/core/exception/exception.dart';
 import 'package:currency_exchange/src/data/local/currency_exchange_local_data_source.dart';
 import 'package:currency_exchange/src/data/remote/currency_remote_data_source.dart';
 import 'package:currency_exchange/src/data/repositories/extension/exchange_codes_ext.dart';
 import 'package:currency_exchange/src/data/repositories/extension/exchange_currency_ext.dart';
+import 'package:currency_exchange/src/domain/model/converted_amount.dart';
+import 'package:currency_exchange/src/domain/model/currency_code.dart';
 import 'package:currency_exchange/src/domain/model/currency_model.dart';
 import 'package:currency_exchange/src/domain/model/currency_rates.dart';
-import 'package:currency_exchange/src/domain/model/currency_rates_model.dart';
 import 'package:currency_exchange/src/domain/repositories/currency_repository.dart';
 import 'package:dio/dio.dart';
 
@@ -24,7 +26,6 @@ class CurrencyRepositoryImpl implements CurrencyRepository {
       final remoteRates = await remoteDataSource.getLatestUSDRates();
       final currencyRates = remoteRates.toCurrencyRatesDomain();
       if (currencyRates != null) {
-        localDataSource.cacheCurrencyRates(currencyRates);
         return currencyRates;
       } else {
         throw ServerException(message: 'Server error');
@@ -60,37 +61,42 @@ class CurrencyRepositoryImpl implements CurrencyRepository {
   }
 
   @override
-  Future<CurrencyRates> calculateCurrency(
+  Future<List<ConvertedAmount>> calculateCurrency(
     String newBaseCurrency,
     double amount,
   ) async {
     final rates = await localDataSource.getLastCurrencyRates();
     final convertedRates =
         _convertCurrencyRates(rates, newBaseCurrency, amount);
-    return convertedRates.toDomain();
+    return convertedRates;
   }
 
-  CurrencyRatesModel _convertCurrencyRates(
-    CurrencyRatesModel rates,
+  List<ConvertedAmount> _convertCurrencyRates(
+    List<CurrencyModel> rates,
     String newBaseCurrency,
     double amount,
   ) {
     // Get the conversion rate for the new base currency relative to the original base
-    final newBaseRate = rates.rates[newBaseCurrency] ?? 1.0;
+    final newBaseRate = rates
+            .firstWhereOrNull(
+              (currencyModel) => currencyModel.code == newBaseCurrency,
+            )
+            ?.rate ??
+        1.0;
 
-    final Map<String, double> convertedRates = {};
+    final List<ConvertedAmount> convertedAmount = rates
+        .map(
+          (currencyModel) => ConvertedAmount(
+            code: currencyModel.code,
+            amount: (currencyModel.rate / newBaseRate) * amount,
+          ),
+        )
+        .toList();
 
-    rates.rates.forEach((currency, rate) {
-      // Convert to new base currency, then multiply by amount
-      convertedRates[currency] = (rate / newBaseRate) * amount;
-    });
-
-    // The new base currency itself should equal the amount
-    convertedRates[newBaseCurrency] = amount;
-
-    return CurrencyRatesModel(
-      baseCurrency: newBaseCurrency,
-      rates: convertedRates,
-    );
+    return convertedAmount;
   }
+
+  @override
+  Future<void> cacheCurrencyRates(List<CurrencyModel> currencyModels) =>
+      localDataSource.cacheCurrencyRates(currencyModels);
 }

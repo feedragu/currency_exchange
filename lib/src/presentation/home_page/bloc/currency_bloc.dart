@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:currency_exchange/src/domain/usecases/change_currency_use_case.dart';
-import 'package:currency_exchange/src/domain/usecases/fetch_currency_rates_use_case.dart';
+import 'package:currency_exchange/src/domain/use_case/change_currency_use_case.dart';
+import 'package:currency_exchange/src/domain/use_case/fetch_currency_rates_use_case.dart';
+import 'package:currency_exchange/src/presentation/home_page/model/ui_converted_amount.dart';
+import 'package:currency_exchange/src/presentation/home_page/model/ui_currency_model.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
@@ -33,16 +35,26 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
     GetCurrencyRatesEvent event,
     Emitter<CurrencyState> emit,
   ) async {
-    emit(CurrencyLoading());
-    currencyController.text = _usd;
-    final result = await getCurrencyRates.run();
-
-    emit(
-      CurrencyLoaded(
-        baseCurrency: result.baseCurrency,
-        rates: result.rates,
-      ),
-    );
+    try {
+      emit(CurrencyLoading());
+      currencyController.text = _usd;
+      final result = await getCurrencyRates.run();
+      final convertedAmounts = await changeCurrency.run(
+        request: ChangeCurrencyParams(
+          newBaseCurrency: result.baseCurrency,
+          amount: double.parse(amountController.text),
+        ),
+      );
+      emit(
+        CurrencyLoaded(
+          baseCurrency: result.baseCurrency,
+          currencyModels: result.currencyModels,
+          convertedAmounts: convertedAmounts,
+        ),
+      );
+    } catch (e) {
+      emit(CurrencyError(message: e.toString()));
+    }
   }
 
   Future<void> _onChangeCurrencyEvent(
@@ -59,14 +71,11 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
               amount: double.parse(amountController.text),
             ),
           );
-          currencyController.text = result.baseCurrency;
-          emit(
-            CurrencyLoaded(
-              baseCurrency: result.baseCurrency,
-              rates: result.rates,
-              isLoadingChangeCurrency: false,
-            ),
-          );
+          currencyController.text = event.newBaseCurrency.code;
+          emit(currentState.copyWith(
+            convertedAmounts: result,
+            baseCurrency: event.newBaseCurrency,
+          ));
         case CurrencyInitial():
         case CurrencyLoading():
         case CurrencyError():
@@ -91,13 +100,8 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
                 amount: double.parse(event.newAmount),
               ),
             );
-            currencyController.text = result.baseCurrency;
             emit(
-              CurrencyLoaded(
-                baseCurrency: result.baseCurrency,
-                rates: result.rates,
-                isLoadingChangeCurrency: false,
-              ),
+              currentState.copyWith(convertedAmounts: result),
             );
           }
         case CurrencyInitial():

@@ -19,7 +19,7 @@ class OnAmountChangedEvent extends CurrencyEvent {
 }
 
 class ChangeCurrencyEvent extends CurrencyEvent {
-  final String newBaseCurrency;
+  final UiCurrencyModel newBaseCurrency;
 
   const ChangeCurrencyEvent(this.newBaseCurrency);
 

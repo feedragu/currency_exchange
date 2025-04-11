@@ -1,10 +1,9 @@
-import 'package:currency_exchange/src/domain/model/currency_rates.dart';
-import 'package:currency_exchange/src/domain/model/currency_rates_model.dart';
+import 'package:currency_exchange/src/domain/model/currency_model.dart';
 
 abstract class CurrencyLocalDataSource {
-  Future<CurrencyRatesModel> getLastCurrencyRates();
+  Future<List<CurrencyModel>> getLastCurrencyRates();
 
-  Future<void> cacheCurrencyRates(CurrencyRates currencyRates);
+  Future<void> cacheCurrencyRates(List<CurrencyModel> currencyModels);
 
   Future<bool> hasData();
 }

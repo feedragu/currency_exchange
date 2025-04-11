@@ -1,7 +1,5 @@
-import 'dart:convert';
-
 import 'package:currency_exchange/src/data/local/database/database.dart';
-import 'package:currency_exchange/src/domain/model/currency_rates.dart';
+import 'package:currency_exchange/src/domain/model/currency_model.dart';
 import 'package:drift/drift.dart';
 
 class CurrencyDao {
@@ -9,53 +7,57 @@ class CurrencyDao {
 
   CurrencyDao(this._db);
 
-  Future<void> saveCurrencyRates(CurrencyRates currencyRates) async {
-    final ratesJson = jsonEncode(currencyRates.rates);
+  Future<void> saveCurrencies(List<CurrencyModel> currencyModels) async {
+    await _db.transaction(() async {
+      await clearAll();
 
-    await _db.into(_db.currencyRatesTable).insertOnConflictUpdate(
-          CurrencyRatesTableCompanion(
-            baseCurrency: Value(currencyRates.baseCurrency),
-            ratesJson: Value(ratesJson),
-            lastUpdated: Value(currencyRates.lastUpdated ?? DateTime.now()),
-          ),
-        );
+      for (final currency in currencyModels) {
+        await _db.into(_db.currencyRatesTable).insertOnConflictUpdate(
+              CurrencyRatesTableCompanion(
+                code: Value(currency.code),
+                description: Value(currency.description),
+                rate: Value(currency.rate),
+              ),
+            );
+      }
+    });
   }
 
-  Future<CurrencyRates?> getCurrencyRates(String baseCurrency) async {
-    final query = _db.select(_db.currencyRatesTable)
-      ..where((tbl) => tbl.baseCurrency.equals(baseCurrency));
+  Future<List<CurrencyModel>?> getCurrencyRate() async {
+    final query = _db.select(_db.currencyRatesTable);
+    final results = await query.get();
 
-    final result = await query.getSingleOrNull();
-
-    if (result == null) {
+    if (results.isEmpty) {
       return null;
     }
 
-    final Map<String, dynamic> jsonMap = jsonDecode(result.ratesJson);
-    final Map<String, double> rates = {};
+    // Convert database rows to CurrencyModel objects
+    final List<CurrencyModel> currencyModels = results
+        .map((row) => CurrencyModel(
+              code: row.code,
+              description: row.description ?? row.code,
+              rate: row.rate,
+            ))
+        .toList();
 
-    jsonMap.forEach((key, value) {
-      rates[key] = (value is int) ? value.toDouble() : value;
-    });
-
-    return CurrencyRates(
-      baseCurrency: result.baseCurrency,
-      rates: rates,
-      lastUpdated: result.lastUpdated,
-    );
+    return currencyModels;
   }
 
   Future<List<String>> getAllBaseCurrencies() async {
-    final query = _db.select(_db.currencyRatesTable);
+    // Since we don't store base currencies explicitly in the new structure,
+    // you might need to handle this differently in your application
+    // This is a placeholder implementation
+    final query = _db.select(_db.currencyRatesTable)
+      ..where((tbl) => tbl.rate.equals(1.0));
     final results = await query.get();
-    return results.map((row) => row.baseCurrency).toList();
+    return results.map((row) => row.code).toList();
   }
 
-  Future<bool> hasStoredRates() async {
+  Future<bool> hasStoredCurrencies() async {
     final count = await (_db.selectOnly(_db.currencyRatesTable)
-          ..addColumns([_db.currencyRatesTable.baseCurrency.count()]))
+          ..addColumns([_db.currencyRatesTable.code.count()]))
         .map(
-          (row) => row.read(_db.currencyRatesTable.baseCurrency.count()) ?? 0,
+          (row) => row.read(_db.currencyRatesTable.code.count()) ?? 0,
         )
         .getSingle();
 
@@ -64,5 +66,34 @@ class CurrencyDao {
 
   Future<void> clearAll() async {
     await _db.delete(_db.currencyRatesTable).go();
+  }
+
+  // Add a currency for a specific base currency
+  Future<void> addCurrency(String baseCurrency, CurrencyModel currency) async {
+    await _db.into(_db.currencyRatesTable).insertOnConflictUpdate(
+          CurrencyRatesTableCompanion(
+            code: Value(currency.code),
+            description: Value(currency.description),
+            rate: Value(currency.rate),
+          ),
+        );
+  }
+
+  // Get a specific currency
+  Future<CurrencyModel?> getCurrency(String code) async {
+    final query = _db.select(_db.currencyRatesTable)
+      ..where((tbl) => tbl.code.equals(code));
+
+    final result = await query.getSingleOrNull();
+
+    if (result == null) {
+      return null;
+    }
+
+    return CurrencyModel(
+      code: result.code,
+      description: result.description ?? result.code,
+      rate: result.rate,
+    );
   }
 }

@@ -60,7 +60,7 @@ class HomeBody extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16.0, vertical: 8),
                         child: CurrencyDropdown(
-                          values: state.rates.keys.toList(),
+                          values: state.currencyModels.toList(),
                           selectedValue: state.baseCurrency,
                           controller:
                               context.read<CurrencyBloc>().currencyController,
@@ -77,8 +77,7 @@ class HomeBody extends StatelessWidget {
                       ),
                       Expanded(
                         child: CurrencyListWidget(
-                          baseCurrency: state.baseCurrency,
-                          rates: state.rates,
+                          convertedAmounts: state.convertedAmounts,
                         ),
                       ),
                     ],

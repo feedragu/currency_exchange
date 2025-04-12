@@ -20,6 +20,9 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
   final TextEditingController currencyController;
   final TextEditingController amountController;
 
+  double get amount =>
+      double.tryParse(amountController.text.replaceAll(',', '.')) ?? -1;
+
   CurrencyBloc({
     required this.getCurrencyRates,
     required this.changeCurrency,
@@ -43,10 +46,7 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
       final convertedAmounts = await changeCurrency.run(
         request: ChangeCurrencyParams(
           newBaseCurrency: currencyRate.baseCurrency,
-          amount: double.tryParse(
-                amountController.text,
-              ) ??
-              1,
+          amount: amount,
         ),
       );
       emit(
@@ -78,7 +78,7 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
           final convertedAmounts = await changeCurrency.run(
             request: ChangeCurrencyParams(
               newBaseCurrency: event.newBaseCurrency,
-              amount: double.tryParse(amountController.text) ?? 1,
+              amount: amount,
             ),
           );
           currencyController.text = event.newBaseCurrency.code;
@@ -110,22 +110,23 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
       final currentState = state;
       switch (currentState) {
         case CurrencyLoaded():
-          if (event.newAmount.isNotEmpty) {
+          if (amount != -1) {
             final result = await changeCurrency.run(
               request: ChangeCurrencyParams(
                 newBaseCurrency: currentState.baseCurrency,
-                amount: double.tryParse(event.newAmount) ?? 1,
+                amount: amount,
               ),
             );
             emit(
               currentState.copyWith(
-                  convertedAmounts: result
-                      .whereNot(
-                        (convertedAmount) =>
-                            convertedAmount.code ==
-                            currentState.baseCurrency.code,
-                      )
-                      .toList(),),
+                convertedAmounts: result
+                    .whereNot(
+                      (convertedAmount) =>
+                          convertedAmount.code ==
+                          currentState.baseCurrency.code,
+                    )
+                    .toList(),
+              ),
             );
           }
         default:

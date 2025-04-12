@@ -52,7 +52,7 @@ flutter:
 
   assets:
     - lib/resources/images/
-    - .env
+    - lib/resources/.env
 
 #  fonts:
 #    - family: Roboto

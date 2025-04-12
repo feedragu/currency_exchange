@@ -4,7 +4,6 @@ import 'package:currency_exchange/src/presentation/home_page/bloc/currency_bloc.
 import 'package:currency_exchange/src/presentation/home_page/widget/currency_dropdown.dart';
 import 'package:currency_exchange/src/presentation/home_page/widget/currency_grid_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomeBody extends StatelessWidget {
@@ -39,14 +38,13 @@ class HomeBody extends StatelessWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 8),
+                          horizontal: 16.0,
+                          vertical: 8,
+                        ),
                         child: AppTextField(
                           labelText: 'Amount',
                           controller:
                               context.read<CurrencyBloc>().amountController,
-                          textInputFormatter: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
                           onTextChanged: (newAmount) => context
                               .read<CurrencyBloc>()
                               .add(OnAmountChangedEvent(newAmount)),
@@ -58,9 +56,11 @@ class HomeBody extends StatelessWidget {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 8),
+                          horizontal: 16.0,
+                          vertical: 8,
+                        ),
                         child: CurrencyDropdown(
-                          values: state.currencyModels.toList(),
+                          values: state.filteredCurrencyModels.toList(),
                           selectedValue: state.baseCurrency,
                           controller:
                               context.read<CurrencyBloc>().currencyController,

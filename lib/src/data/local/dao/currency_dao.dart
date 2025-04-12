@@ -33,11 +33,13 @@ class CurrencyDao {
 
     // Convert database rows to CurrencyModel objects
     final List<CurrencyModel> currencyModels = results
-        .map((row) => CurrencyModel(
-              code: row.code,
-              description: row.description ?? row.code,
-              rate: row.rate,
-            ))
+        .map(
+          (row) => CurrencyModel(
+            code: row.code,
+            description: row.description ?? row.code,
+            rate: row.rate,
+          ),
+        )
         .toList();
 
     return currencyModels;

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
 import 'package:currency_exchange/src/domain/use_case/change_currency_use_case.dart';
 import 'package:currency_exchange/src/domain/use_case/fetch_currency_rates_use_case.dart';
 import 'package:currency_exchange/src/presentation/home_page/model/ui_converted_amount.dart';
@@ -38,18 +39,27 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
     try {
       emit(CurrencyLoading());
       currencyController.text = _usd;
-      final result = await getCurrencyRates.run();
+      final currencyRate = await getCurrencyRates.run();
       final convertedAmounts = await changeCurrency.run(
         request: ChangeCurrencyParams(
-          newBaseCurrency: result.baseCurrency,
-          amount: double.parse(amountController.text),
+          newBaseCurrency: currencyRate.baseCurrency,
+          amount: double.tryParse(
+                amountController.text,
+              ) ??
+              1,
         ),
       );
       emit(
         CurrencyLoaded(
-          baseCurrency: result.baseCurrency,
-          currencyModels: result.currencyModels,
-          convertedAmounts: convertedAmounts,
+          baseCurrency: currencyRate.baseCurrency,
+          currencyModels: currencyRate.currencyModels,
+          filteredCurrencyModels: currencyRate.currencyModels,
+          convertedAmounts: convertedAmounts
+              .whereNot(
+                (convertedAmount) =>
+                    convertedAmount.code == currencyRate.baseCurrency.code,
+              )
+              .toList(),
         ),
       );
     } catch (e) {
@@ -65,23 +75,30 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
       final currentState = state;
       switch (currentState) {
         case CurrencyLoaded():
-          final result = await changeCurrency.run(
+          final convertedAmounts = await changeCurrency.run(
             request: ChangeCurrencyParams(
               newBaseCurrency: event.newBaseCurrency,
-              amount: double.parse(amountController.text),
+              amount: double.tryParse(amountController.text) ?? 1,
             ),
           );
           currencyController.text = event.newBaseCurrency.code;
-          emit(currentState.copyWith(
-            convertedAmounts: result,
-            baseCurrency: event.newBaseCurrency,
-          ));
-        case CurrencyInitial():
-        case CurrencyLoading():
-        case CurrencyError():
+          emit(
+            currentState.copyWith(
+              convertedAmounts: convertedAmounts
+                  .whereNot(
+                    (convertedAmount) =>
+                        convertedAmount.code == event.newBaseCurrency.code,
+                  )
+                  .toList(),
+              filteredCurrencyModels: currentState.currencyModels,
+              baseCurrency: event.newBaseCurrency,
+            ),
+          );
+        default:
+          emit(const CurrencyError());
       }
-    } on FormatException catch (e) {
-      emit(CurrencyError(message: e.toString()));
+    } on FormatException catch (_) {
+      // ignore
     }
   }
 
@@ -97,22 +114,61 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
             final result = await changeCurrency.run(
               request: ChangeCurrencyParams(
                 newBaseCurrency: currentState.baseCurrency,
-                amount: double.parse(event.newAmount),
+                amount: double.tryParse(event.newAmount) ?? 1,
               ),
             );
             emit(
-              currentState.copyWith(convertedAmounts: result),
+              currentState.copyWith(
+                  convertedAmounts: result
+                      .whereNot(
+                        (convertedAmount) =>
+                            convertedAmount.code ==
+                            currentState.baseCurrency.code,
+                      )
+                      .toList(),),
             );
           }
-        case CurrencyInitial():
-        case CurrencyLoading():
-        case CurrencyError():
+        default:
+          emit(const CurrencyError());
       }
-    } on FormatException catch (e) {
-      emit(CurrencyError(message: e.toString()));
+    } on FormatException catch (_) {
+      // ignore
     }
   }
 
   FutureOr<void> _onFilteredItemsEvent(
-      FilteredItemsEvent event, Emitter<CurrencyState> emit) {}
+    FilteredItemsEvent event,
+    Emitter<CurrencyState> emit,
+  ) {
+    try {
+      final currentState = state;
+      switch (currentState) {
+        case CurrencyLoaded():
+          if (event.filteredText.isNotEmpty) {
+            emit(
+              currentState.copyWith(
+                filteredCurrencyModels: event.filteredText ==
+                        currentState.baseCurrency.code
+                    ? currentState.currencyModels
+                    : currentState.currencyModels
+                        .where(
+                          (currencyModel) =>
+                              currencyModel.code
+                                  .toLowerCase()
+                                  .contains(event.filteredText.toLowerCase()) ||
+                              currencyModel.description
+                                  .toLowerCase()
+                                  .contains(event.filteredText.toLowerCase()),
+                        )
+                        .toList(),
+              ),
+            );
+          }
+        default:
+          emit(const CurrencyError());
+      }
+    } on FormatException catch (_) {
+      // ignore
+    }
+  }
 }

@@ -13,13 +13,37 @@ import 'package:mocktail/mocktail.dart';
 // Mocking CurrencyBloc
 class MockCurrencyBloc extends Mock implements CurrencyBloc {}
 
+class MockTextEditing extends Mock implements TextEditingController {}
+
+class MockTextEditingAmount extends Mock implements TextEditingController {}
+
 void main() {
   late MockCurrencyBloc mockCurrencyBloc;
+  late MockTextEditing mockController;
+  late MockTextEditingAmount mockControllerAmount;
 
-  setUpAll(() {});
+  setUpAll(() {
+    registerFallbackValue(MockTextEditing());
+    registerFallbackValue(MockTextEditingAmount());
+  });
 
   setUp(() {
     mockCurrencyBloc = MockCurrencyBloc();
+    mockController = MockTextEditing();
+    mockControllerAmount = MockTextEditingAmount();
+
+    when(() => mockController.text).thenReturn('100');
+    when(() => mockController.text = any()).thenAnswer((invocation) {
+      // Simulate setting the text value
+      final text = invocation.positionalArguments[0];
+      return text;
+    });
+    when(() => mockControllerAmount.text).thenReturn('100');
+    when(() => mockControllerAmount.text = any()).thenAnswer((invocation) {
+      // Simulate setting the text value
+      final text = invocation.positionalArguments[0];
+      return text;
+    });
   });
 
   Widget createWidgetUnderTest() {
@@ -62,6 +86,10 @@ void main() {
 
   testWidgets('shows dropdown and list when state is CurrencyLoaded',
       (tester) async {
+    // Register mock controller for TextField
+    when(() => mockCurrencyBloc.currencyController).thenReturn(mockController);
+    when(() => mockCurrencyBloc.amountController)
+        .thenReturn(mockControllerAmount);
     const baseCurrency =
         UiCurrencyModel(code: 'USD', description: 'description', rate: 1.0);
     const rates = [
@@ -79,6 +107,7 @@ void main() {
         baseCurrency: baseCurrency,
         convertedAmounts: convertedAmount,
         currencyModels: rates,
+        filteredCurrencyModels: rates,
       ),
     );
     whenListen(
@@ -88,6 +117,7 @@ void main() {
           baseCurrency: baseCurrency,
           convertedAmounts: convertedAmount,
           currencyModels: rates,
+          filteredCurrencyModels: rates,
         ),
       ),
     );

@@ -76,27 +76,35 @@ class CurrencyRepositoryImpl implements CurrencyRepository {
     String newBaseCurrency,
     double amount,
   ) {
-    // Get the conversion rate for the new base currency relative to the original base
-    final newBaseRate = rates
-            .firstWhereOrNull(
-              (currencyModel) => currencyModel.code == newBaseCurrency,
-            )
-            ?.rate ??
-        1.0;
+    if (rates.isNotEmpty) {
+      // Get the conversion rate for the new base currency relative to the original base
+      final newBaseRate = rates
+              .firstWhereOrNull(
+                (currencyModel) => currencyModel.code == newBaseCurrency,
+              )
+              ?.rate ??
+          1.0;
 
-    final List<ConvertedAmount> convertedAmount = rates
-        .map(
-          (currencyModel) => ConvertedAmount(
-            code: currencyModel.code,
-            amount: (currencyModel.rate / newBaseRate) * amount,
-          ),
-        )
-        .toList();
+      final List<ConvertedAmount> convertedAmount = rates
+          .map(
+            (currencyModel) => ConvertedAmount(
+              code: currencyModel.code,
+              amount: (currencyModel.rate / newBaseRate) * amount,
+            ),
+          )
+          .toList();
 
-    return convertedAmount;
+      return convertedAmount;
+    } else {
+      throw CacheException();
+    }
   }
 
   @override
   Future<void> cacheCurrencyRates(List<CurrencyModel> currencyModels) =>
       localDataSource.cacheCurrencyRates(currencyModels);
+
+  @override
+  Future<List<CurrencyModel>> getCachedCurrencyRates() =>
+      localDataSource.getLastCurrencyRates();
 }

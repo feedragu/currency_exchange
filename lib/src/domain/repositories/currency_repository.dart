@@ -14,4 +14,6 @@ abstract class CurrencyRepository {
   );
 
   Future<void> cacheCurrencyRates(List<CurrencyModel> currencyModels);
+
+  Future<List<CurrencyModel>> getCachedCurrencyRates();
 }

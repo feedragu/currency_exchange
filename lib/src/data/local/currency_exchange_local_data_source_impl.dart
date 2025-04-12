@@ -15,12 +15,12 @@ class CurrencyLocalDataSourceImpl implements CurrencyLocalDataSource {
       final anyRates = await currencyDao.getCurrencyRate();
 
       if (anyRates == null) {
-        throw Exception('Failed to retrieve cached exchange rates');
+        return [];
       }
 
       return anyRates;
     } catch (e) {
-      throw Exception(e.toString());
+      return [];
     }
   }
 

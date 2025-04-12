@@ -1,3 +1,4 @@
+import 'package:currency_exchange/src/core/env_config/env_config.dart';
 import 'package:currency_exchange/src/core/network/di/app_dio_provider.dart';
 import 'package:currency_exchange/src/data/local/currency_exchange_local_data_source.dart';
 import 'package:currency_exchange/src/data/local/di/local_data_source_providers.dart';
@@ -23,6 +24,7 @@ List<SingleChildWidget> globalAppProviders() => [
       ProxyProvider<Dio, CurrencyRemoteDataSource>(
         update: (_, dio, __) => CurrencyRemoteDataSourceImpl(
           client: dio,
+          apiKey: EnvConfig.currencyApiKey,
         ),
       ),
 

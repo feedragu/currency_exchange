@@ -1,0 +1,9 @@
+{
+  "@@locale": "en",
+  "@_COMMON": {},
+  "currencyExchange": "Currency Exchange",
+  "usd": "USD",
+  "retry": "Retry",
+  "amount": "Amount",
+  "currency": "Currency"
+}

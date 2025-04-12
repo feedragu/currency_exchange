@@ -1,0 +1,6 @@
+arb-dir: lib/src/core/localizations/arb
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.g.dart
+output-dir: lib/src/core/localizations/l10n/gen
+synthetic-package: false
+use-escaping: true

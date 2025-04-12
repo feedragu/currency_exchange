@@ -38,10 +38,14 @@ class CurrencyListWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                amountValue.toStringAsFixed(2),
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12),
+              Flexible(
+                child: Text(
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  amountValue.toStringAsFixed(2),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 12),
+                ),
               ),
             ],
           ),

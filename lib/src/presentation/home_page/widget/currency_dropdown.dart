@@ -1,4 +1,5 @@
 import 'package:currency_exchange/src/core/design_system/edit_text_dropdown.dart';
+import 'package:currency_exchange/src/core/localizations/app_localizations.dart';
 import 'package:currency_exchange/src/presentation/home_page/model/ui_currency_model.dart';
 import 'package:flutter/material.dart';
 
@@ -28,13 +29,18 @@ class CurrencyDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizationProvider.of(context);
+
     return EditTextDropdown<UiCurrencyModel>(
       icon: Icons.keyboard_arrow_down,
       items: values.map((uiCurrencyModel) {
         return DropdownItem<UiCurrencyModel>(
           value: uiCurrencyModel,
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            padding: const EdgeInsets.symmetric(
+              vertical: 8,
+              horizontal: 16,
+            ),
             child:
                 Text('${uiCurrencyModel.code}: ${uiCurrencyModel.description}'),
           ),
@@ -43,7 +49,7 @@ class CurrencyDropdown extends StatelessWidget {
       onChange: (int index) => onSelectedChanged(values[index]),
       filterItems: onFilteredText,
       controller: controller,
-      labelText: 'Currency',
+      labelText: localizations.currency,
     );
   }
 }

@@ -13,11 +13,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-// Generate mock classes
 @GenerateMocks([CurrencyBloc, AppLocalizations])
 import 'home_body_test.mocks.dart';
 
-// Mock AppLocalizationProvider to return our mock localizations
 class TestAppLocalizationProvider extends StatelessWidget {
   final Widget child;
   final AppLocalizations localizations;
@@ -56,7 +54,6 @@ class _LocalizationsInheritedWidget extends InheritedWidget {
   }
 }
 
-// Patch the AppLocalizationProvider to use our test implementation
 class AppLocalizationProvider {
   static AppLocalizations of(BuildContext context) {
     final wrapper = _LocalizationsInheritedWidget.of(context);
@@ -82,12 +79,10 @@ void main() {
     mockCurrencyController = TextEditingController();
     mockLocalizations = MockAppLocalizations();
 
-    // Setup the bloc's controllers
     when(mockCurrencyBloc.amountController).thenReturn(mockAmountController);
     when(mockCurrencyBloc.currencyController)
         .thenReturn(mockCurrencyController);
 
-    // Setup localizations
     when(mockLocalizations.amount).thenReturn('Amount');
     when(mockLocalizations.retry).thenReturn('Retry');
   });
@@ -123,10 +118,8 @@ void main() {
     when(mockCurrencyBloc.stream)
         .thenAnswer((_) => Stream.value(CurrencyInitial()));
 
-    // Act
     await tester.pumpWidget(createWidgetUnderTest());
 
-    // Assert
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
     verify(mockCurrencyBloc.add(argThat(isA<GetCurrencyRatesEvent>())))
         .called(1);
@@ -134,21 +127,17 @@ void main() {
 
   testWidgets('should show loading indicator when state is CurrencyLoading',
       (WidgetTester tester) async {
-    // Arrange
     when(mockCurrencyBloc.state).thenReturn(CurrencyLoading());
     when(mockCurrencyBloc.stream)
         .thenAnswer((_) => Stream.value(CurrencyLoading()));
 
-    // Act
     await tester.pumpWidget(createWidgetUnderTest());
 
-    // Assert
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
   testWidgets('should show content when state is CurrencyLoaded',
       (WidgetTester tester) async {
-    // Arrange
     const loadedState = CurrencyLoaded(
       baseCurrency: UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
       convertedAmounts: [
@@ -171,10 +160,8 @@ void main() {
     when(mockCurrencyBloc.state).thenReturn(loadedState);
     when(mockCurrencyBloc.stream).thenAnswer((_) => Stream.value(loadedState));
 
-    // Act
     await tester.pumpWidget(createWidgetUnderTest());
 
-    // Assert
     expect(find.byType(AppTextField), findsOneWidget);
     expect(find.byType(CurrencyDropdown), findsOneWidget);
     expect(find.byType(CurrencyListWidget), findsOneWidget);
@@ -183,7 +170,6 @@ void main() {
 
   testWidgets('should show loading overlay when currency is being changed',
       (WidgetTester tester) async {
-    // Arrange
     const loadedState = CurrencyLoaded(
       baseCurrency: UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
       convertedAmounts: [
@@ -206,33 +192,26 @@ void main() {
     when(mockCurrencyBloc.state).thenReturn(loadedState);
     when(mockCurrencyBloc.stream).thenAnswer((_) => Stream.value(loadedState));
 
-    // Act
     await tester.pumpWidget(createWidgetUnderTest());
 
-    // Assert
     expect(find.byType(AppTextField), findsOneWidget);
     expect(find.byType(CurrencyDropdown), findsOneWidget);
     expect(find.byType(CurrencyListWidget), findsOneWidget);
-    // Should also find the circular progress indicator for the loading overlay
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
   testWidgets('should show error message when state is CurrencyError',
       (WidgetTester tester) async {
-    // Arrange
     const errorState = CurrencyError(message: 'Failed to load currencies');
 
     when(mockCurrencyBloc.state).thenReturn(errorState);
     when(mockCurrencyBloc.stream).thenAnswer((_) => Stream.value(errorState));
 
-    // Act
     await tester.pumpWidget(createWidgetUnderTest());
 
-    // Assert
     expect(find.text('Error: Failed to load currencies'), findsOneWidget);
     expect(find.text('Retry'), findsOneWidget);
 
-    // Test retry button action
     await tester.tap(find.text('Retry'));
     verify(mockCurrencyBloc.add(argThat(isA<GetCurrencyRatesEvent>())))
         .called(1);
@@ -240,7 +219,6 @@ void main() {
 
   testWidgets('should call OnAmountChangedEvent when text field changes',
       (WidgetTester tester) async {
-    // Arrange
     const loadedState = CurrencyLoaded(
       baseCurrency: UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
       convertedAmounts: [
@@ -263,18 +241,15 @@ void main() {
     when(mockCurrencyBloc.state).thenReturn(loadedState);
     when(mockCurrencyBloc.stream).thenAnswer((_) => Stream.value(loadedState));
 
-    // Act
     await tester.pumpWidget(createWidgetUnderTest());
     await tester.enterText(find.byType(AppTextField), '100');
 
-    // Assert
     verify(mockCurrencyBloc.add(argThat(isA<OnAmountChangedEvent>())))
         .called(1);
   });
 
   testWidgets('should call ChangeCurrencyEvent when dropdown currency changes',
       (WidgetTester tester) async {
-    // Arrange
     const loadedState = CurrencyLoaded(
       baseCurrency: UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
       convertedAmounts: [
@@ -297,26 +272,21 @@ void main() {
     when(mockCurrencyBloc.state).thenReturn(loadedState);
     when(mockCurrencyBloc.stream).thenAnswer((_) => Stream.value(loadedState));
 
-    // Act
     await tester.pumpWidget(createWidgetUnderTest());
 
-    // Find and trigger the onSelectedChanged callback on CurrencyDropdown
     final dropdownFinder = find.byType(CurrencyDropdown);
     expect(dropdownFinder, findsOneWidget);
 
-    // This is a bit tricky as we need to extract the widget and call its callback
     final CurrencyDropdown dropdown = tester.widget(dropdownFinder);
     dropdown.onSelectedChanged(
       const UiCurrencyModel(code: 'EUR', description: 'EUR', rate: 0.85),
     );
 
-    // Assert
     verify(mockCurrencyBloc.add(argThat(isA<ChangeCurrencyEvent>()))).called(1);
   });
 
   testWidgets('should call FilteredItemsEvent when dropdown text is filtered',
       (WidgetTester tester) async {
-    // Arrange
     const loadedState = CurrencyLoaded(
       baseCurrency: UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
       convertedAmounts: [
@@ -339,25 +309,20 @@ void main() {
     when(mockCurrencyBloc.state).thenReturn(loadedState);
     when(mockCurrencyBloc.stream).thenAnswer((_) => Stream.value(loadedState));
 
-    // Act
     await tester.pumpWidget(createWidgetUnderTest());
 
-    // Find and trigger the onFilteredText callback on CurrencyDropdown
     final dropdownFinder = find.byType(CurrencyDropdown);
     expect(dropdownFinder, findsOneWidget);
 
-    // This is a bit tricky as we need to extract the widget and call its callback
     final CurrencyDropdown dropdown = tester.widget(dropdownFinder);
     dropdown.onFilteredText('EU');
 
-    // Assert
     verify(mockCurrencyBloc.add(argThat(isA<FilteredItemsEvent>()))).called(1);
   });
 
   testWidgets(
       'should call GetCurrencyRatesEvent when RefreshIndicator is triggered',
       (WidgetTester tester) async {
-    // Arrange
     const loadedState = CurrencyLoaded(
       baseCurrency: UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
       convertedAmounts: [
@@ -380,14 +345,11 @@ void main() {
     when(mockCurrencyBloc.state).thenReturn(loadedState);
     when(mockCurrencyBloc.stream).thenAnswer((_) => Stream.value(loadedState));
 
-    // Act
     await tester.pumpWidget(createWidgetUnderTest());
 
-    // Trigger refresh indicator
     await tester.drag(find.byType(RefreshIndicator), const Offset(0, 300));
     await tester.pumpAndSettle();
 
-    // Assert
     verify(mockCurrencyBloc.add(argThat(isA<GetCurrencyRatesEvent>())))
         .called(1);
   });

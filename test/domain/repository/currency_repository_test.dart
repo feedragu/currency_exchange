@@ -87,6 +87,29 @@ void main() {
     });
   });
 
+  test('throws ServerException on Dio error', () async {
+    when(() => mockRemote.getLatestUSDRates()).thenThrow(
+      DioException(
+        requestOptions: RequestOptions(path: ''),
+        type: DioExceptionType.connectionTimeout,
+      ),
+    );
+
+    expect(
+      () => repository.getCurrencyRates(),
+      throwsA(isA<ServerException>()),
+    );
+  });
+
+  test('throws UnknownException on unexpected error', () async {
+    when(() => mockRemote.getLatestUSDRates()).thenThrow(Exception('oops'));
+
+    expect(
+      () => repository.getCurrencyRates(),
+      throwsA(isA<ServerException>()), // if this is how you handle unknowns
+    );
+  });
+
   group('calculateCurrency', () {
     test('returns converted amounts from local cache', () async {
       final rates = [

@@ -1,6 +1,8 @@
 import 'package:currency_exchange/src/core/design_system/app_circular_progress_indicator.dart';
 import 'package:currency_exchange/src/core/design_system/app_text_field.dart';
+import 'package:currency_exchange/src/core/exception/exception.dart';
 import 'package:currency_exchange/src/core/localizations/app_localizations.dart';
+import 'package:currency_exchange/src/core/localizations/l10n/gen/app_localizations.g.dart';
 import 'package:currency_exchange/src/presentation/home_page/bloc/currency_bloc.dart';
 import 'package:currency_exchange/src/presentation/home_page/widget/currency_dropdown.dart';
 import 'package:currency_exchange/src/presentation/home_page/widget/currency_grid_widget.dart';
@@ -106,12 +108,7 @@ class HomeBody extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'Error: ${state.message}',
-                    style: const TextStyle(
-                      color: Colors.red,
-                    ),
-                  ),
+                  buildErrorMessage(state, localizations),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
@@ -128,6 +125,33 @@ class HomeBody extends StatelessWidget {
             );
         }
       },
+    );
+  }
+
+  Text buildErrorMessage(
+    CurrencyError state,
+    AppLocalizations localizations,
+  ) {
+    String getLocalizedExceptionMessage(
+      Object? exception,
+    ) {
+      switch (exception) {
+        case CacheException():
+          return localizations.cacheExceptionMessage;
+        case ServerException():
+          return localizations.serverExceptionMessage;
+        case NetworkException():
+          return localizations.networkExceptionMessage;
+        default:
+          return localizations.genericExceptionMessage;
+      }
+    }
+
+    return Text(
+      getLocalizedExceptionMessage(state.exception),
+      style: const TextStyle(
+        color: Colors.red,
+      ),
     );
   }
 }

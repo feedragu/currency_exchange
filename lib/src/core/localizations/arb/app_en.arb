@@ -5,5 +5,9 @@
   "usd": "USD",
   "retry": "Retry",
   "amount": "Amount",
-  "currency": "Currency"
+  "currency": "Currency",
+  "cacheExceptionMessage": "Data could not be loaded. Please try again later.",
+  "serverExceptionMessage": "Server error occurred. Please try again soon.",
+  "networkExceptionMessage": "No internet connection. Check your network settings.",
+  "genericExceptionMessage": "Something went wrong. Please try again."
 }

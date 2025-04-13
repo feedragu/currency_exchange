@@ -22,4 +22,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get currency => 'Currency';
+
+  @override
+  String get cacheExceptionMessage => 'Data could not be loaded. Please try again later.';
+
+  @override
+  String get serverExceptionMessage => 'Server error occurred. Please try again soon.';
+
+  @override
+  String get networkExceptionMessage => 'No internet connection. Check your network settings.';
+
+  @override
+  String get genericExceptionMessage => 'Something went wrong. Please try again.';
 }

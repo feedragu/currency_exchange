@@ -63,7 +63,7 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
         ),
       );
     } catch (e) {
-      emit(CurrencyError(message: e.toString()));
+      emit(CurrencyError(exception: e));
     }
   }
 
@@ -134,6 +134,8 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
       }
     } on FormatException catch (_) {
       // ignore
+    } catch (e) {
+      debugPrint(e.toString());
     }
   }
 

@@ -28,17 +28,19 @@ class CurrencyRepositoryImpl implements CurrencyRepository {
       if (currencyRates != null) {
         return currencyRates;
       } else {
-        throw ServerException(message: 'Server error');
+        throw ServerException();
       }
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-        throw ServerException(message: 'User not found');
+        throw ServerException();
       } else if (e.type == DioExceptionType.receiveTimeout ||
           e.type == DioExceptionType.connectionError) {
-        throw NetworkException(message: 'Connection timeout');
+        throw NetworkException();
       } else {
-        throw ServerException(message: 'Server error: ${e.message}');
+        throw ServerException();
       }
+    } catch (e) {
+      throw ServerException();
     }
   }
 
@@ -50,12 +52,12 @@ class CurrencyRepositoryImpl implements CurrencyRepository {
       return currencyRates;
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-        throw ServerException(message: 'User not found');
+        throw ServerException();
       } else if (e.type == DioExceptionType.receiveTimeout ||
           e.type == DioExceptionType.connectionError) {
-        throw NetworkException(message: 'Connection timeout');
+        throw NetworkException();
       } else {
-        throw ServerException(message: 'Server error: ${e.message}');
+        throw ServerException();
       }
     }
   }

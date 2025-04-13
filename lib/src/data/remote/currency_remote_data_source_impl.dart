@@ -25,19 +25,15 @@ class CurrencyRemoteDataSourceImpl implements CurrencyRemoteDataSource {
         return NetworkExchangeRatesResponse.fromJson(response.data);
       } else {
         throw ServerException(
-          message: 'Failed to load currency rates',
           statusCode: response.statusCode,
         );
       }
     } on DioException catch (e) {
       throw ServerException(
-        message: e.message ?? 'Unknown error occurred',
         statusCode: e.response?.statusCode,
       );
     } catch (e) {
-      throw ServerException(
-        message: 'Unexpected error: ${e.toString()}',
-      );
+      throw ServerException();
     }
   }
 
@@ -52,19 +48,15 @@ class CurrencyRemoteDataSourceImpl implements CurrencyRemoteDataSource {
         return NetworkCurrencyCodesResponse.fromJson(response.data);
       } else {
         throw ServerException(
-          message: 'Failed to load currency rates',
           statusCode: response.statusCode,
         );
       }
     } on DioException catch (e) {
       throw ServerException(
-        message: e.message ?? 'Unknown error occurred',
         statusCode: e.response?.statusCode,
       );
     } catch (e) {
-      throw ServerException(
-        message: 'Unexpected error: ${e.toString()}',
-      );
+      throw ServerException();
     }
   }
 }

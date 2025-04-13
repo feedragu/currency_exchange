@@ -24,8 +24,7 @@ void main() {
   });
 
   group('getLatestUSDRates', () {
-    test(
-        'should return NetworkExchangeRatesResponse when the call is successful',
+    test('return NetworkExchangeRatesResponse when the call is successful',
         () async {
       when(() => mockDio.get('/v6/$mockApiKey/latest/USD')).thenAnswer(
         (_) async => Response(
@@ -43,8 +42,7 @@ void main() {
       verify(() => mockDio.get('/v6/$mockApiKey/latest/USD')).called(1);
     });
 
-    test('should throw ServerException when the response code is not 200',
-        () async {
+    test('throw ServerException when the response code is not 200', () async {
       when(() => mockDio.get('/v6/$mockApiKey/latest/USD')).thenAnswer(
         (_) async => Response(
           data: {'error': 'Something went wrong'},
@@ -56,17 +54,13 @@ void main() {
       await expectLater(
         dataSource.getLatestUSDRates(),
         throwsA(
-          predicate(
-            (dynamic e) =>
-                e is ServerException &&
-                e.message.contains('Failed to load currency rates'),
-          ),
+          predicate((dynamic e) => e is ServerException),
         ),
       );
       verify(() => mockDio.get('/v6/$mockApiKey/latest/USD')).called(1);
     });
 
-    test('should throw ServerException when DioException occurs', () async {
+    test('throw ServerException when DioException occurs', () async {
       when(() => mockDio.get('/v6/$mockApiKey/latest/USD')).thenThrow(
         DioException(
           requestOptions: RequestOptions(path: ''),
@@ -82,15 +76,14 @@ void main() {
         dataSource.getLatestUSDRates(),
         throwsA(
           predicate(
-            (dynamic e) =>
-                e is ServerException && e.message.contains('Server error'),
+            (dynamic e) => e is ServerException,
           ),
         ),
       );
       verify(() => mockDio.get('/v6/$mockApiKey/latest/USD')).called(1);
     });
 
-    test('should throw ServerException when unexpected error occurs', () async {
+    test('throw ServerException when unexpected error occurs', () async {
       when(() => mockDio.get('/v6/$mockApiKey/latest/USD'))
           .thenThrow(Exception('Unexpected error'));
 
@@ -98,8 +91,7 @@ void main() {
         dataSource.getLatestUSDRates(),
         throwsA(
           predicate(
-            (dynamic e) =>
-                e is ServerException && e.message.contains('Unexpected error'),
+            (dynamic e) => e is ServerException,
           ),
         ),
       );
@@ -108,8 +100,7 @@ void main() {
   });
 
   group('getSupportedCodes', () {
-    test(
-        'should return NetworkCurrencyCodesResponse when the call is successful',
+    test('return NetworkCurrencyCodesResponse when the call is successful',
         () async {
       when(() => mockDio.get('/v6/$mockApiKey/codes')).thenAnswer(
         (_) async => Response(
@@ -128,8 +119,7 @@ void main() {
       verify(() => mockDio.get('/v6/$mockApiKey/codes')).called(1);
     });
 
-    test('should throw ServerException when the response code is not 200',
-        () async {
+    test('throw ServerException when the response code is not 200', () async {
       when(() => mockDio.get('/v6/$mockApiKey/codes')).thenAnswer(
         (_) async => Response(
           data: {'error': 'Something went wrong'},
@@ -142,16 +132,14 @@ void main() {
         dataSource.getSupportedCodes(),
         throwsA(
           predicate(
-            (dynamic e) =>
-                e is ServerException &&
-                e.message.contains('Failed to load currency rates'),
+            (dynamic e) => e is ServerException,
           ),
         ),
       );
       verify(() => mockDio.get('/v6/$mockApiKey/codes')).called(1);
     });
 
-    test('should throw ServerException when DioException occurs', () async {
+    test('throw ServerException when DioException occurs', () async {
       when(() => mockDio.get('/v6/$mockApiKey/codes')).thenThrow(
         DioException(
           requestOptions: RequestOptions(path: ''),
@@ -166,16 +154,13 @@ void main() {
       await expectLater(
         dataSource.getSupportedCodes(),
         throwsA(
-          predicate(
-            (dynamic e) =>
-                e is ServerException && e.message.contains('Not found'),
-          ),
+          predicate((dynamic e) => e is ServerException),
         ),
       );
       verify(() => mockDio.get('/v6/$mockApiKey/codes')).called(1);
     });
 
-    test('should throw ServerException when unexpected error occurs', () async {
+    test('throw ServerException when unexpected error occurs', () async {
       when(() => mockDio.get('/v6/$mockApiKey/codes'))
           .thenThrow(Exception('Unexpected error'));
 
@@ -183,8 +168,7 @@ void main() {
         dataSource.getSupportedCodes(),
         throwsA(
           predicate(
-            (dynamic e) =>
-                e is ServerException && e.message.contains('Unexpected error'),
+            (dynamic e) => e is ServerException,
           ),
         ),
       );

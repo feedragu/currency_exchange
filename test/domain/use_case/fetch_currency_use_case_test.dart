@@ -50,9 +50,8 @@ void main() {
 
   group('FetchCurrencyRatesUseCase', () {
     test(
-        'should return UiCurrencyRate with USD as base currency when fetch is successful',
+        'return UiCurrencyRate with USD as base currency when fetch is successful',
         () async {
-      // Arrange
       when(() => mockRepository.getCurrencyRates())
           .thenAnswer((_) async => testCurrencyRates);
       when(() => mockRepository.getExchangeCodes())
@@ -60,10 +59,8 @@ void main() {
       when(() => mockRepository.cacheCurrencyRates(any()))
           .thenAnswer((_) async {});
 
-      // Act
       final result = await useCase.run();
 
-      // Assert
       expect(result, isA<UiCurrencyRate>());
       expect(result.baseCurrency.code, 'USD');
       expect(result.currencyModels.length, 4);
@@ -72,15 +69,14 @@ void main() {
       verify(() => mockRepository.cacheCurrencyRates(any())).called(1);
     });
 
-    test('should handle currency codes with missing descriptions', () async {
-      // Arrange
+    test('handle currency codes with missing descriptions', () async {
       when(() => mockRepository.getCurrencyRates()).thenAnswer(
         (_) async => CurrencyRates(
           baseCurrency: 'USD',
           rates: {
             'USD': 1.0,
             'EUR': 0.85,
-            'XYZ': 2.0, // Currency with no matching code
+            'XYZ': 2.0,
           },
         ),
       );
@@ -89,10 +85,8 @@ void main() {
       when(() => mockRepository.cacheCurrencyRates(any()))
           .thenAnswer((_) async {});
 
-      // Act
       final result = await useCase.run();
 
-      // Assert
       expect(result, isA<UiCurrencyRate>());
       expect(result.baseCurrency.code, 'USD');
       expect(result.currencyModels.length, 3);
@@ -101,11 +95,10 @@ void main() {
         orElse: () => const UiCurrencyModel(code: '', description: '', rate: 0),
       );
       expect(xyzCurrency.code, 'XYZ');
-      expect(xyzCurrency.description, ''); // Empty description
+      expect(xyzCurrency.description, '');
     });
 
-    test('should use cached data when fetch fails', () async {
-      // Arrange
+    test('use cached data when fetch fails', () async {
       when(() => mockRepository.getCurrencyRates())
           .thenThrow(Exception('Network error'));
       when(() => mockRepository.getExchangeCodes())
@@ -113,10 +106,8 @@ void main() {
       when(() => mockRepository.getCachedCurrencyRates())
           .thenAnswer((_) async => expectedCurrencyModels);
 
-      // Act
       final result = await useCase.run();
 
-      // Assert
       expect(result, isA<UiCurrencyRate>());
       expect(result.baseCurrency.code, 'USD');
       expect(result.currencyModels.length, 4);
@@ -124,9 +115,8 @@ void main() {
       verifyNever(() => mockRepository.cacheCurrencyRates(any()));
     });
 
-    test('should throw CacheException when both fetch and cache fail',
+    test('throw CacheException when both fetch and cache fail',
         () async {
-      // Arrange
       when(() => mockRepository.getCurrencyRates())
           .thenThrow(Exception('Network error'));
       when(() => mockRepository.getExchangeCodes())
@@ -134,15 +124,13 @@ void main() {
       when(() => mockRepository.getCachedCurrencyRates())
           .thenAnswer((_) async => []);
 
-      // Act & Assert
       expect(() => useCase.run(), throwsA(isA<CacheException>()));
     });
 
-    test('should choose different base currency when USD is not available',
+    test('choose different base currency when USD is not available',
         () async {
-      // Arrange
       final nonUsdRates = CurrencyRates(
-        baseCurrency: 'EUR', // Base currency is not USD
+        baseCurrency: 'EUR',
         rates: {
           'EUR': 1.0,
           'GBP': 0.88,
@@ -162,21 +150,18 @@ void main() {
       when(() => mockRepository.cacheCurrencyRates(any()))
           .thenAnswer((_) async {});
 
-      // Act
       final result = await useCase.run();
 
-      // Assert
       expect(result, isA<UiCurrencyRate>());
       expect(result.baseCurrency.code, 'EUR');
       expect(result.currencyModels.length, 3);
     });
 
     test(
-        'should fallback to first currency when specified base currency not found',
+        'fallback to first currency when specified base currency not found',
         () async {
-      // Arrange
       final testRates = CurrencyRates(
-        baseCurrency: 'XYZ', // Currency that doesn't exist in the list
+        baseCurrency: 'XYZ',
         rates: {
           'EUR': 1.0,
           'GBP': 0.88,
@@ -194,12 +179,10 @@ void main() {
       when(() => mockRepository.cacheCurrencyRates(any()))
           .thenAnswer((_) async {});
 
-      // Act
       final result = await useCase.run();
 
-      // Assert
       expect(result, isA<UiCurrencyRate>());
-      expect(result.baseCurrency.code, 'EUR'); // Falls back to first currency
+      expect(result.baseCurrency.code, 'EUR');
       expect(result.currencyModels.length, 2);
     });
   });

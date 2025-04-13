@@ -122,6 +122,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Currency'**
   String get currency;
+
+  /// No description provided for @cacheExceptionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Data could not be loaded. Please try again later.'**
+  String get cacheExceptionMessage;
+
+  /// No description provided for @serverExceptionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Server error occurred. Please try again soon.'**
+  String get serverExceptionMessage;
+
+  /// No description provided for @networkExceptionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Check your network settings.'**
+  String get networkExceptionMessage;
+
+  /// No description provided for @genericExceptionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get genericExceptionMessage;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

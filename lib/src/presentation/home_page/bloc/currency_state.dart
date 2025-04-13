@@ -55,10 +55,10 @@ class CurrencyLoaded extends CurrencyState {
 }
 
 class CurrencyError extends CurrencyState {
-  final String? message;
+  final Object? exception;
 
-  const CurrencyError({this.message});
+  const CurrencyError({this.exception});
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [exception];
 }

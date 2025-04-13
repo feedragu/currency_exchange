@@ -1,4 +1,5 @@
 import 'package:currency_exchange/src/core/design_system/app_text_field.dart';
+import 'package:currency_exchange/src/core/exception/exception.dart';
 import 'package:currency_exchange/src/core/localizations/l10n/gen/app_localizations.g.dart';
 import 'package:currency_exchange/src/presentation/home_page/bloc/currency_bloc.dart';
 import 'package:currency_exchange/src/presentation/home_page/model/ui_converted_amount.dart';
@@ -111,7 +112,7 @@ void main() {
     );
   }
 
-  testWidgets('should show loading indicator when state is CurrencyInitial',
+  testWidgets('show loading indicator when state is CurrencyInitial',
       (WidgetTester tester) async {
     when(mockCurrencyBloc.state).thenReturn(CurrencyInitial());
 
@@ -125,7 +126,7 @@ void main() {
         .called(1);
   });
 
-  testWidgets('should show loading indicator when state is CurrencyLoading',
+  testWidgets('show loading indicator when state is CurrencyLoading',
       (WidgetTester tester) async {
     when(mockCurrencyBloc.state).thenReturn(CurrencyLoading());
     when(mockCurrencyBloc.stream)
@@ -136,23 +137,23 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
-  testWidgets('should show content when state is CurrencyLoaded',
+  testWidgets('show content when state is CurrencyLoaded',
       (WidgetTester tester) async {
     const loadedState = CurrencyLoaded(
-      baseCurrency: UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
+      baseCurrency: UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
       convertedAmounts: [
         UiConvertedAmount(code: 'EUR', amount: 0.85),
         UiConvertedAmount(code: 'GBP', amount: 0.73),
       ],
       filteredCurrencyModels: [
-        UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
-        UiCurrencyModel(code: 'EUR', description: 'EUR', rate: 0.85),
+        UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
+        UiCurrencyModel(code: 'EUR', description: 'Euro', rate: 0.85),
         UiCurrencyModel(code: 'GBP', description: 'GBP', rate: 0.73),
       ],
       isLoadingChangeCurrency: false,
       currencyModels: [
-        UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
-        UiCurrencyModel(code: 'EUR', description: 'EUR', rate: 0.85),
+        UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
+        UiCurrencyModel(code: 'EUR', description: 'Euro', rate: 0.85),
         UiCurrencyModel(code: 'GBP', description: 'GBP', rate: 0.73),
       ],
     );
@@ -168,23 +169,23 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsNothing);
   });
 
-  testWidgets('should show loading overlay when currency is being changed',
+  testWidgets('show loading overlay when currency is being changed',
       (WidgetTester tester) async {
     const loadedState = CurrencyLoaded(
-      baseCurrency: UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
+      baseCurrency: UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
       convertedAmounts: [
         UiConvertedAmount(code: 'EUR', amount: 0.85),
         UiConvertedAmount(code: 'GBP', amount: 0.73),
       ],
       filteredCurrencyModels: [
-        UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
-        UiCurrencyModel(code: 'EUR', description: 'EUR', rate: 0.85),
+        UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
+        UiCurrencyModel(code: 'EUR', description: 'Euro', rate: 0.85),
         UiCurrencyModel(code: 'GBP', description: 'GBP', rate: 0.73),
       ],
       isLoadingChangeCurrency: true,
       currencyModels: [
-        UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
-        UiCurrencyModel(code: 'EUR', description: 'EUR', rate: 0.85),
+        UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
+        UiCurrencyModel(code: 'EUR', description: 'Euro', rate: 0.85),
         UiCurrencyModel(code: 'GBP', description: 'GBP', rate: 0.73),
       ],
     );
@@ -200,16 +201,19 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
-  testWidgets('should show error message when state is CurrencyError',
+  testWidgets('show error message when state is CurrencyError',
       (WidgetTester tester) async {
-    const errorState = CurrencyError(message: 'Failed to load currencies');
+    final errorState = CurrencyError(exception: ServerException());
 
     when(mockCurrencyBloc.state).thenReturn(errorState);
     when(mockCurrencyBloc.stream).thenAnswer((_) => Stream.value(errorState));
 
     await tester.pumpWidget(createWidgetUnderTest());
 
-    expect(find.text('Error: Failed to load currencies'), findsOneWidget);
+    expect(
+      find.text('Server error occurred. Please try again soon.'),
+      findsOneWidget,
+    );
     expect(find.text('Retry'), findsOneWidget);
 
     await tester.tap(find.text('Retry'));
@@ -217,23 +221,23 @@ void main() {
         .called(1);
   });
 
-  testWidgets('should call OnAmountChangedEvent when text field changes',
+  testWidgets('call OnAmountChangedEvent when text field changes',
       (WidgetTester tester) async {
     const loadedState = CurrencyLoaded(
-      baseCurrency: UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
+      baseCurrency: UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
       convertedAmounts: [
         UiConvertedAmount(code: 'EUR', amount: 0.85),
         UiConvertedAmount(code: 'GBP', amount: 0.73),
       ],
       filteredCurrencyModels: [
-        UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
-        UiCurrencyModel(code: 'EUR', description: 'EUR', rate: 0.85),
+        UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
+        UiCurrencyModel(code: 'EUR', description: 'Euro', rate: 0.85),
         UiCurrencyModel(code: 'GBP', description: 'GBP', rate: 0.73),
       ],
       isLoadingChangeCurrency: false,
       currencyModels: [
-        UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
-        UiCurrencyModel(code: 'EUR', description: 'EUR', rate: 0.85),
+        UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
+        UiCurrencyModel(code: 'EUR', description: 'Euro', rate: 0.85),
         UiCurrencyModel(code: 'GBP', description: 'GBP', rate: 0.73),
       ],
     );
@@ -248,23 +252,23 @@ void main() {
         .called(1);
   });
 
-  testWidgets('should call ChangeCurrencyEvent when dropdown currency changes',
+  testWidgets('call ChangeCurrencyEvent when dropdown currency changes',
       (WidgetTester tester) async {
     const loadedState = CurrencyLoaded(
-      baseCurrency: UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
+      baseCurrency: UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
       convertedAmounts: [
         UiConvertedAmount(code: 'EUR', amount: 0.85),
         UiConvertedAmount(code: 'GBP', amount: 0.73),
       ],
       filteredCurrencyModels: [
-        UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
-        UiCurrencyModel(code: 'EUR', description: 'EUR', rate: 0.85),
+        UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
+        UiCurrencyModel(code: 'EUR', description: 'Euro', rate: 0.85),
         UiCurrencyModel(code: 'GBP', description: 'GBP', rate: 0.73),
       ],
       isLoadingChangeCurrency: false,
       currencyModels: [
-        UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
-        UiCurrencyModel(code: 'EUR', description: 'EUR', rate: 0.85),
+        UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
+        UiCurrencyModel(code: 'EUR', description: 'Euro', rate: 0.85),
         UiCurrencyModel(code: 'GBP', description: 'GBP', rate: 0.73),
       ],
     );
@@ -279,29 +283,29 @@ void main() {
 
     final CurrencyDropdown dropdown = tester.widget(dropdownFinder);
     dropdown.onSelectedChanged(
-      const UiCurrencyModel(code: 'EUR', description: 'EUR', rate: 0.85),
+      const UiCurrencyModel(code: 'EUR', description: 'Euro', rate: 0.85),
     );
 
     verify(mockCurrencyBloc.add(argThat(isA<ChangeCurrencyEvent>()))).called(1);
   });
 
-  testWidgets('should call FilteredItemsEvent when dropdown text is filtered',
+  testWidgets('call FilteredItemsEvent when dropdown text is filtered',
       (WidgetTester tester) async {
     const loadedState = CurrencyLoaded(
-      baseCurrency: UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
+      baseCurrency: UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
       convertedAmounts: [
         UiConvertedAmount(code: 'EUR', amount: 0.85),
         UiConvertedAmount(code: 'GBP', amount: 0.73),
       ],
       filteredCurrencyModels: [
-        UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
-        UiCurrencyModel(code: 'EUR', description: 'EUR', rate: 0.85),
+        UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
+        UiCurrencyModel(code: 'EUR', description: 'Euro', rate: 0.85),
         UiCurrencyModel(code: 'GBP', description: 'GBP', rate: 0.73),
       ],
       isLoadingChangeCurrency: false,
       currencyModels: [
-        UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
-        UiCurrencyModel(code: 'EUR', description: 'EUR', rate: 0.85),
+        UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
+        UiCurrencyModel(code: 'EUR', description: 'Euro', rate: 0.85),
         UiCurrencyModel(code: 'GBP', description: 'GBP', rate: 0.73),
       ],
     );
@@ -320,24 +324,23 @@ void main() {
     verify(mockCurrencyBloc.add(argThat(isA<FilteredItemsEvent>()))).called(1);
   });
 
-  testWidgets(
-      'should call GetCurrencyRatesEvent when RefreshIndicator is triggered',
+  testWidgets('call GetCurrencyRatesEvent when RefreshIndicator is triggered',
       (WidgetTester tester) async {
     const loadedState = CurrencyLoaded(
-      baseCurrency: UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
+      baseCurrency: UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
       convertedAmounts: [
         UiConvertedAmount(code: 'EUR', amount: 0.85),
         UiConvertedAmount(code: 'GBP', amount: 0.73),
       ],
       filteredCurrencyModels: [
-        UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
-        UiCurrencyModel(code: 'EUR', description: 'EUR', rate: 0.85),
+        UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
+        UiCurrencyModel(code: 'EUR', description: 'Euro', rate: 0.85),
         UiCurrencyModel(code: 'GBP', description: 'GBP', rate: 0.73),
       ],
       isLoadingChangeCurrency: false,
       currencyModels: [
-        UiCurrencyModel(code: 'USD', description: 'USD', rate: 1.0),
-        UiCurrencyModel(code: 'EUR', description: 'EUR', rate: 0.85),
+        UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
+        UiCurrencyModel(code: 'EUR', description: 'Euro', rate: 0.85),
         UiCurrencyModel(code: 'GBP', description: 'GBP', rate: 0.73),
       ],
     );
@@ -352,5 +355,82 @@ void main() {
 
     verify(mockCurrencyBloc.add(argThat(isA<GetCurrencyRatesEvent>())))
         .called(1);
+  });
+
+  testWidgets('filters currency list when user types in dropdown text field',
+      (WidgetTester tester) async {
+    const loadedState = CurrencyLoaded(
+      baseCurrency: UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
+      convertedAmounts: [],
+      filteredCurrencyModels: [],
+      isLoadingChangeCurrency: false,
+      currencyModels: [
+        UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
+        UiCurrencyModel(code: 'EUR', description: 'Euro', rate: 0.85),
+      ],
+    );
+
+    when(mockCurrencyBloc.state).thenReturn(loadedState);
+    when(mockCurrencyBloc.stream).thenAnswer((_) => Stream.value(loadedState));
+
+    await tester.pumpWidget(createWidgetUnderTest());
+
+    // Enter filter text
+    final dropdownFinder = find.byType(CurrencyDropdown);
+    final CurrencyDropdown dropdown = tester.widget(dropdownFinder);
+
+    dropdown.onFilteredText('EU');
+    await tester.pump();
+
+    verify(
+      mockCurrencyBloc.add(
+        argThat(
+          isA<FilteredItemsEvent>().having(
+            (e) => e.filteredText,
+            'Euro',
+            'EU',
+          ),
+        ),
+      ),
+    ).called(1);
+  });
+
+  testWidgets('selects a currency from the dropdown',
+      (WidgetTester tester) async {
+    const loadedState = CurrencyLoaded(
+      baseCurrency: UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
+      convertedAmounts: [],
+      filteredCurrencyModels: [],
+      isLoadingChangeCurrency: false,
+      currencyModels: [
+        UiCurrencyModel(code: 'USD', description: 'United States Dollar', rate: 1.0),
+        UiCurrencyModel(code: 'EUR', description: 'Euro', rate: 0.85),
+      ],
+    );
+
+    when(mockCurrencyBloc.state).thenReturn(loadedState);
+    when(mockCurrencyBloc.stream).thenAnswer((_) => Stream.value(loadedState));
+
+    await tester.pumpWidget(createWidgetUnderTest());
+
+    final dropdownFinder = find.byType(CurrencyDropdown);
+    final CurrencyDropdown dropdown = tester.widget(dropdownFinder);
+
+    dropdown.onSelectedChanged(
+      const UiCurrencyModel(code: 'EUR', description: 'Euro', rate: 0.85),
+    );
+    await tester.pump();
+
+    verify(
+      mockCurrencyBloc.add(
+        argThat(
+          isA<ChangeCurrencyEvent>().having(
+            (e) => e.newBaseCurrency.code,
+            'Euro',
+            'EUR',
+          ),
+        ),
+      ),
+    ).called(1);
   });
 }

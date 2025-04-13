@@ -11,7 +11,7 @@ import 'package:currency_exchange/src/presentation/home_page/model/ui_currency_r
 /// Use case to fetch the latest exchange rates from USD
 class FetchCurrencyRatesUseCase implements AppUseCase<Future<UiCurrencyRate>> {
   final CurrencyRepository repository;
-  static String _usdCode = 'USD';
+  static const String _usdCode = 'USD';
 
   FetchCurrencyRatesUseCase(this.repository);
 

@@ -110,32 +110,46 @@ class CurrencyBloc extends Bloc<CurrencyEvent, CurrencyState> {
       final currentState = state;
       switch (currentState) {
         case CurrencyLoaded():
-          if (amount != -1) {
-            final result = await changeCurrency.run(
-              request: ChangeCurrencyParams(
-                newBaseCurrency: currentState.baseCurrency,
-                amount: amount,
-              ),
-            );
+          if (double.tryParse(
+                event.newAmount.replaceAll(
+                  ',',
+                  '.',
+                ),
+              ) ==
+              null) {
             emit(
               currentState.copyWith(
-                convertedAmounts: result
-                    .whereNot(
-                      (convertedAmount) =>
-                          convertedAmount.code ==
-                          currentState.baseCurrency.code,
-                    )
-                    .toList(),
+                amountError: true,
               ),
             );
+          } else {
+            if (amount != -1) {
+              final result = await changeCurrency.run(
+                request: ChangeCurrencyParams(
+                  newBaseCurrency: currentState.baseCurrency,
+                  amount: amount,
+                ),
+              );
+              emit(
+                currentState.copyWith(
+                  amountError: false,
+                  convertedAmounts: result
+                      .whereNot(
+                        (convertedAmount) =>
+                            convertedAmount.code ==
+                            currentState.baseCurrency.code,
+                      )
+                      .toList(),
+                ),
+              );
+            }
           }
+
         default:
           emit(const CurrencyError());
       }
     } on FormatException catch (_) {
       // ignore
-    } catch (e) {
-      debugPrint(e.toString());
     }
   }
 

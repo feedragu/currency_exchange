@@ -6,6 +6,7 @@
   "retry": "Retry",
   "amount": "Amount",
   "currency": "Currency",
+  "amountNotValid": "Amount inserted not valid",
   "cacheExceptionMessage": "Data could not be loaded. Please try again later.",
   "serverExceptionMessage": "Server error occurred. Please try again soon.",
   "networkExceptionMessage": "No internet connection. Check your network settings.",

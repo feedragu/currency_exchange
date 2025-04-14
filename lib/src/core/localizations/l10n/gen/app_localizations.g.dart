@@ -123,6 +123,12 @@ abstract class AppLocalizations {
   /// **'Currency'**
   String get currency;
 
+  /// No description provided for @amountNotValid.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount inserted not valid'**
+  String get amountNotValid;
+
   /// No description provided for @cacheExceptionMessage.
   ///
   /// In en, this message translates to:

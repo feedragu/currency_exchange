@@ -4,8 +4,6 @@ import 'package:flutter/services.dart';
 class AppTextField extends StatelessWidget {
   final TextEditingController controller;
   final String? labelText;
-  final Widget? prefixIcon;
-  final Widget? suffixIcon;
   final BoxConstraints? suffixIconConstraints;
   final Widget? prefix;
   final Widget? suffix;
@@ -43,8 +41,6 @@ class AppTextField extends StatelessWidget {
     this.errorText,
     this.isDisabled,
     this.obscureText = false,
-    this.prefixIcon,
-    this.suffixIcon,
     this.suffixIconConstraints,
     this.prefix,
     this.suffix,
@@ -101,8 +97,6 @@ class AppTextField extends StatelessWidget {
             decoration: InputDecoration(
               isDense: isDense,
               icon: icon,
-              prefixIcon: prefixIcon,
-              suffixIcon: suffixIcon,
               suffixIconConstraints: suffixIconConstraints,
               prefix: prefix,
               suffix: suffix,
@@ -113,16 +107,12 @@ class AppTextField extends StatelessWidget {
               ),
               border: const UnderlineInputBorder(borderSide: BorderSide.none),
               labelText: labelText,
-              counterText: '',
             ),
             onChanged: (text) {
               if (onTextChanged != null) {
                 onTextChanged?.call(text);
               }
             },
-            enableInteractiveSelection: enableInteractiveSelection,
-            textCapitalization: textCapitalization ?? TextCapitalization.none,
-            maxLength: maxLength,
             inputFormatters: textInputFormatter ?? [],
             onFieldSubmitted: onSubmitted ?? (_) => {},
           ),

@@ -14,6 +14,7 @@ class CurrencyLoading extends CurrencyState {}
 class CurrencyLoaded extends CurrencyState {
   final UiCurrencyModel baseCurrency;
   final bool isLoadingChangeCurrency;
+  final bool amountError;
   final List<UiCurrencyModel> currencyModels;
   final List<UiCurrencyModel> filteredCurrencyModels;
   final List<UiConvertedAmount> convertedAmounts;
@@ -24,6 +25,7 @@ class CurrencyLoaded extends CurrencyState {
     required this.filteredCurrencyModels,
     required this.convertedAmounts,
     this.isLoadingChangeCurrency = false,
+    this.amountError = false,
   });
 
   @override
@@ -31,6 +33,7 @@ class CurrencyLoaded extends CurrencyState {
         baseCurrency,
         currencyModels,
         isLoadingChangeCurrency,
+        amountError,
         convertedAmounts,
         filteredCurrencyModels,
       ];
@@ -38,6 +41,7 @@ class CurrencyLoaded extends CurrencyState {
   CurrencyLoaded copyWith({
     UiCurrencyModel? baseCurrency,
     bool? isLoadingChangeCurrency,
+    bool? amountError,
     List<UiCurrencyModel>? currencyModels,
     List<UiCurrencyModel>? filteredCurrencyModels,
     List<UiConvertedAmount>? convertedAmounts,
@@ -46,6 +50,7 @@ class CurrencyLoaded extends CurrencyState {
       baseCurrency: baseCurrency ?? this.baseCurrency,
       isLoadingChangeCurrency:
           isLoadingChangeCurrency ?? this.isLoadingChangeCurrency,
+      amountError: amountError ?? this.amountError,
       currencyModels: currencyModels ?? this.currencyModels,
       filteredCurrencyModels:
           filteredCurrencyModels ?? this.filteredCurrencyModels,

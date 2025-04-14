@@ -51,6 +51,9 @@ class HomeBody extends StatelessWidget {
                           ),
                           child: AppTextField(
                             labelText: localizations.amount,
+                            errorText: state.amountError
+                                ? localizations.amountNotValid
+                                : null,
                             controller:
                                 context.read<CurrencyBloc>().amountController,
                             onTextChanged: (newAmount) => context

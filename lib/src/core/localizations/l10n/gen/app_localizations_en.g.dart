@@ -24,6 +24,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get currency => 'Currency';
 
   @override
+  String get amountNotValid => 'Amount inserted not valid';
+
+  @override
   String get cacheExceptionMessage => 'Data could not be loaded. Please try again later.';
 
   @override
